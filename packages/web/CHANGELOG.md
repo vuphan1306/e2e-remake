@@ -1,5 +1,13 @@
 # @e2e-dev/web
 
+## 0.14.1
+
+### Patch Changes
+
+- [#1061](https://github.com/tester-army/e2e/pull/1061) [`88143fe`](https://github.com/tester-army/e2e/commit/88143fe68538561f287022adbf00d85a5b395198) Thanks [@Ethereal49](https://github.com/Ethereal49)! - The web engine no longer observes Next.js App Router's route announcer, so its hydration-timed title echo cannot stop a replay. Older entries that recorded it re-record on the next read-write run.
+
+- [#1097](https://github.com/tester-army/e2e/pull/1097) [`a869c06`](https://github.com/tester-army/e2e/commit/a869c06304941a8e883dde267f9ca10ead856088) Thanks [@okwasniewski](https://github.com/okwasniewski)! - `expect(browser).toHaveClass` on a node that never arrives still fails as `ASSERTION_FAILED` observing `no node`, now that a locator read waits for its match until the action timeout.
+
 ## 0.14.0
 
 ### Minor Changes
