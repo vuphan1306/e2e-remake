@@ -54,6 +54,7 @@ import { createToolLoopExecutor, defineTool } from '../../src/agent/public.ts';
 import type { Report } from '../../src/index.ts';
 import type { LanguageModelV2, LanguageModelV3, LanguageModelV4 } from '@ai-sdk/provider';
 import { chatgpt } from '../../src/oauth/chatgpt.ts';
+import { claude } from '../../src/oauth/claude.ts';
 import { copilot } from '../../src/oauth/copilot.ts';
 import { grok } from '../../src/oauth/grok.ts';
 import { opencodeConsole } from '../../src/oauth/opencode-console.ts';
@@ -577,13 +578,16 @@ if (runEvent.type === 'explore') {
   if (runEvent.progress.phase === 'finding') runEvent.progress.finding.severity satisfies 1 | 2 | 3 | 4 | 5;
 }
 
-// e2e/oauth/*: a constructor takes the model id alone; the login comes from e2e login or E2E_OAUTH_CREDENTIALS.
+// e2e/oauth/*: a constructor takes the model id alone. Claude delegates to Claude Code; the others use e2e-remake login or E2E_REMAKE_OAUTH_CREDENTIALS.
+claude('sonnet') satisfies LanguageModelV4;
 chatgpt('gpt-5.6-luna') satisfies LanguageModelV4;
 copilot('gpt-4.1') satisfies LanguageModelV4;
 grok('grok-4') satisfies LanguageModelV4;
 opencodeConsole('go/deepseek-v4.1-flash') satisfies LanguageModelV4;
 // @ts-expect-error the store and apiUrl options are gone
 chatgpt('gpt-5.6-luna', {});
+// @ts-expect-error a constructor takes the model id alone
+claude('sonnet', {});
 // @ts-expect-error the store and baseURL options are gone
 copilot('gpt-4.1', {});
 // @ts-expect-error the store and baseURL options are gone

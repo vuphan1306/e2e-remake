@@ -23,13 +23,13 @@ describe('e2e login / logout', () => {
   it('needs a named provider when there is no terminal to pick in', async () => {
     const out: string[] = [];
     expect(await cli.runLogin(undefined, {}, quietIo(out))).toBe(1);
-    expect(out.join('')).toContain('name a provider: openai, github-copilot, opencode-console, spacexai');
+    expect(out.join('')).toContain('name a provider: anthropic, openai, github-copilot, opencode-console, spacexai');
   });
 
   it('turns an unknown provider into one error line, not a stack trace', async () => {
     const out: string[] = [];
     expect(await cli.runLogout('nope', quietIo(out))).toBe(1);
-    expect(out.join('')).toContain('name a provider: openai, github-copilot, opencode-console, spacexai');
+    expect(out.join('')).toContain('name a provider: anthropic, openai, github-copilot, opencode-console, spacexai');
     expect(out.join('').split('\n').filter(Boolean)).toHaveLength(1);
   });
 
@@ -50,9 +50,31 @@ describe('e2e login / logout', () => {
     expect(printed.join('').split('\n')).toContain(url);
     expect(printed.join('')).toContain('ABCD-1234');
   });
+
+  it('delegates Claude sign-in and sign-out to the official Claude Code CLI', async () => {
+    const out: string[] = [];
+    const commands: string[][] = [];
+    const run = async (args: readonly string[]) => {
+      commands.push([...args]);
+      return 0;
+    };
+    expect(await cli.runLogin('anthropic', {}, quietIo(out), run)).toBe(0);
+    expect(await cli.runLogout('anthropic', quietIo(out), run)).toBe(0);
+    expect(commands).toEqual([['auth', 'login'], ['auth', 'logout']]);
+    expect(out.join('')).toContain('Claude Code login is ready for claude().');
+    expect(out.join('')).toContain('Signed out through Claude Code.');
+  });
 });
 
 describe('e2e models', () => {
+  it('describes the model aliases accepted by Claude Code', async () => {
+    const out: string[] = [];
+    expect(await cli.runModels('anthropic', quietIo(out))).toBe(0);
+    expect(out.join('')).toContain('Claude Code (anthropic)');
+    expect(out.join('')).toContain('sonnet');
+    expect(out.join('')).toContain('claude --help');
+  });
+
   it('lists models only for stored logins and says how to sign in when there is none', async () => {
     const out: string[] = [];
     expect(await cli.runModels(undefined, quietIo(out))).toBe(1);

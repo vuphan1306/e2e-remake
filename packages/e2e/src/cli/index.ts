@@ -27,8 +27,7 @@ import { guide } from './guide.ts';
 import { init } from './init.ts';
 import { mcp } from './mcp.ts';
 import { SESSION_BOUNDS } from '../mcp/session.ts';
-import { PROVIDER_IDS } from '../oauth/providers.ts';
-import { runLogin, runLogout, runModels, type LoginFlags } from '../oauth/cli.ts';
+import { runLogin, runLogout, runModels, SUBSCRIPTION_IDS, type LoginFlags } from '../oauth/cli.ts';
 import { SignalLadder } from './signals.ts';
 import { skillTopics } from './skill.ts';
 import { watchSession } from './watch.ts';
@@ -485,18 +484,18 @@ function createProgram(version: string, telemetry: Telemetry): Command {
 
   program
     .command('login')
-    .summary('sign in to a ChatGPT, GitHub Copilot, OpenCode Console, or SuperGrok subscription for agent steps')
+    .summary('sign in to a Claude, ChatGPT, GitHub Copilot, OpenCode Console, or SuperGrok subscription for agent steps')
     .description(
-      'Sign in once to a personal subscription and store the login for the e2e/oauth models: openai (ChatGPT Plus/Pro, the Codex sign-in), github-copilot (GitHub Copilot; reuses the GitHub CLI login or runs a device flow for your OAuth App), opencode-console (OpenCode Console, device code), spacexai (SuperGrok or X Premium+, device code). The config then constructs the model with chatgpt(), copilot(), opencodeConsole(), or grok() from e2e/oauth/<provider>.',
+      'Sign in once to a personal subscription: anthropic delegates authentication to the official Claude Code CLI; the other providers store a login for their e2e/oauth model. The config then constructs the model with claude(), chatgpt(), copilot(), opencodeConsole(), or grok().',
     )
-    .addArgument(new Argument('[provider]', 'openai, github-copilot, opencode-console, or spacexai; omitted, a picker').choices(PROVIDER_IDS))
+    .addArgument(new Argument('[provider]', 'anthropic, openai, github-copilot, opencode-console, or spacexai; omitted, a picker').choices(SUBSCRIPTION_IDS))
     .option('--device', 'ChatGPT: show a code to enter on another device instead of opening a browser')
     .option('--client-id <id>', 'GitHub Copilot: the client id of your GitHub OAuth App with the device flow enabled')
     .option('--from-gh', 'GitHub Copilot: reuse the token of the signed-in GitHub CLI')
     .option('--enterprise-url <host>', 'GitHub Copilot: the GitHub Enterprise host')
     .addHelpText(
       'after',
-      ['', examples(['e2e login openai', 'e2e login github-copilot --from-gh', 'e2e login opencode-console', 'e2e login spacexai', 'e2e login']), '', docsLine('/subscriptions')].join('\n'),
+      ['', examples(['claude auth login', 'e2e-remake login anthropic', 'e2e-remake login openai', 'e2e-remake login github-copilot --from-gh']), '', docsLine('/subscriptions')].join('\n'),
     )
     .action(async (provider: string | undefined, options: LoginFlags) => {
       process.exitCode = await runLogin(provider, options);
@@ -505,8 +504,8 @@ function createProgram(version: string, telemetry: Telemetry): Command {
   program
     .command('logout')
     .summary('forget a stored subscription login')
-    .description('Remove the stored login of one provider (openai, github-copilot, opencode-console, spacexai). Without a provider, a picker over the stored logins.')
-    .addArgument(new Argument('[provider]', 'openai, github-copilot, opencode-console, or spacexai; omitted, a picker').choices(PROVIDER_IDS))
+    .description('Sign out through Claude Code for anthropic, or remove the stored login of another provider. Without a provider, a picker over the logins stored by e2e-remake.')
+    .addArgument(new Argument('[provider]', 'anthropic, openai, github-copilot, opencode-console, or spacexai; omitted, a picker').choices(SUBSCRIPTION_IDS))
     .addHelpText('after', ['', examples(['e2e logout', 'e2e logout openai']), '', docsLine('/subscriptions')].join('\n'))
     .action(async (provider: string | undefined) => {
       process.exitCode = await runLogout(provider);
@@ -516,10 +515,10 @@ function createProgram(version: string, telemetry: Telemetry): Command {
     .command('models')
     .summary('list the models a stored subscription login serves')
     .description(
-      'Ask the vendor which models the stored login serves and print their ids, the ones chatgpt(), copilot(), opencodeConsole(), and grok() take. Without a provider, every stored login in turn.',
+      'Print Claude Code model aliases for anthropic, or ask another vendor which models the stored login serves. Without a provider, every login stored by e2e-remake in turn.',
     )
-    .addArgument(new Argument('[provider]', 'openai, github-copilot, opencode-console, or spacexai; omitted, every stored login').choices(PROVIDER_IDS))
-    .addHelpText('after', ['', examples(['e2e models', 'e2e models openai']), '', docsLine('/subscriptions#pick-a-model')].join('\n'))
+    .addArgument(new Argument('[provider]', 'anthropic, openai, github-copilot, opencode-console, or spacexai; omitted, every stored login').choices(SUBSCRIPTION_IDS))
+    .addHelpText('after', ['', examples(['e2e-remake models anthropic', 'e2e models', 'e2e models openai']), '', docsLine('/subscriptions#pick-a-model')].join('\n'))
     .action(async (provider: string | undefined) => {
       process.exitCode = await runModels(provider);
     });

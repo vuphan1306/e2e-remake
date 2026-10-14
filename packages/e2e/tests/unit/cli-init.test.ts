@@ -245,6 +245,7 @@ describe('e2e init', () => {
       message: expect.stringContaining('Which model gateway'),
       initialValue: 'vercel',
       options: [
+        expect.objectContaining({ value: 'claude' }),
         expect.objectContaining({ value: 'vercel', label: 'Vercel AI Gateway' }),
         expect.objectContaining({ value: 'openrouter' }),
         expect.objectContaining({ value: 'openai-compatible' }),
@@ -266,6 +267,7 @@ describe('e2e init', () => {
   });
 
   it.each([
+    { gateway: 'claude', provider: 'anthropic', login: 'claude auth login', line: "import { claude } from 'e2e/oauth/claude';", model: "model: claude('sonnet'),", sdk: [] },
     { gateway: 'chatgpt', provider: 'openai', line: "import { chatgpt } from 'e2e/oauth/chatgpt';", model: "model: chatgpt('gpt-6-luna'),", sdk: ['@ai-sdk/openai'] },
     { gateway: 'copilot', provider: 'github-copilot', line: "import { copilot } from 'e2e/oauth/copilot';", model: "model: copilot('claude-sonnet-5'),", sdk: ['@ai-sdk/openai-compatible', '@ai-sdk/openai'] },
     {
@@ -276,7 +278,7 @@ describe('e2e init', () => {
       sdk: ['@ai-sdk/openai-compatible', '@ai-sdk/openai', '@ai-sdk/anthropic', '@ai-sdk/google'],
     },
     { gateway: 'grok', provider: 'spacexai', line: "import { grok } from 'e2e/oauth/grok';", model: "model: grok('grok-4'),", sdk: ['@ai-sdk/xai'] },
-  ] as const)('writes a $gateway subscription model and names the sign-in as the next step', async ({ gateway, provider, line, model, sdk }) => {
+  ] as const)('writes a $gateway subscription model and names the sign-in as the next step', async ({ gateway, provider, line, model, sdk, ...entry }) => {
     vi.mocked(clack.select).mockResolvedValueOnce('web').mockResolvedValueOnce(gateway);
     vi.mocked(clack.confirm).mockResolvedValueOnce(true).mockResolvedValueOnce(false);
 
@@ -284,11 +286,12 @@ describe('e2e init', () => {
     expect(clack.text).not.toHaveBeenCalled();
     expect(read('e2e.config.ts')).toContain(line);
     expect(read('e2e.config.ts')).toContain(model);
-    expect(read('e2e.config.ts')).toContain(`sign in once with \`e2e login ${provider}\``);
+    const login = 'login' in entry ? entry.login : `e2e login ${provider}`;
+    expect(read('e2e.config.ts')).toContain(`sign in once with \`${login}\``);
     const devDependencies = JSON.parse(read('package.json')).devDependencies;
     expect(devDependencies).toHaveProperty('ai', '^7.0.0');
     for (const name of sdk) expect(devDependencies).toHaveProperty(name);
-    expect(output()).toContain(`e2e login ${provider}, then`);
+    expect(output()).toContain(`${login}, then`);
   });
 
   it('validates the endpoint the way config resolution will', async () => {

@@ -46,6 +46,7 @@ describe('the built declarations', () => {
   });
 
   it.each([
+    ['oauth/claude.d.ts', 'claude', 'ClaudeOptions'],
     ['oauth/chatgpt.d.ts', 'chatgpt', 'ChatGptOptions'],
     ['oauth/copilot.d.ts', 'copilot', 'CopilotOptions'],
     ['oauth/opencode-console.d.ts', 'opencodeConsole', 'OpencodeConsoleOptions'],

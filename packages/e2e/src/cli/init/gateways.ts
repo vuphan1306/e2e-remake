@@ -5,7 +5,7 @@
  * entry here.
  */
 
-export type GatewayId = 'vercel' | 'openrouter' | 'openai-compatible' | 'chatgpt' | 'copilot' | 'opencode-console' | 'grok';
+export type GatewayId = 'vercel' | 'openrouter' | 'openai-compatible' | 'claude' | 'chatgpt' | 'copilot' | 'opencode-console' | 'grok';
 
 export interface GatewayPreset {
   readonly id: GatewayId;
@@ -23,6 +23,16 @@ export interface GatewayPreset {
 }
 
 export const GATEWAYS: readonly GatewayPreset[] = [
+  {
+    id: 'claude',
+    label: 'Claude Pro/Max subscription',
+    hint: 'your Claude plan through the official Claude Code CLI',
+    dependencies: {},
+    import: "import { claude } from 'e2e/oauth/claude';",
+    comment: 'The official Claude Code CLI serves your Claude subscription; sign in once with `claude auth login`.',
+    login: 'anthropic',
+    model: () => "claude('sonnet')",
+  },
   {
     id: 'vercel',
     label: 'Vercel AI Gateway',

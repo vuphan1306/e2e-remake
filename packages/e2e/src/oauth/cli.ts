@@ -15,6 +15,11 @@ import { PROVIDER_IDS, getProvider, isProviderId, type LoginOptionsById, type Pr
 import { defaultCredentialStore } from './store.ts';
 import type { OAuthLoginCallbacks, SubscriptionModel } from './types.ts';
 
+const CLAUDE_CODE_ID = 'anthropic' as const;
+export const SUBSCRIPTION_IDS = [CLAUDE_CODE_ID, ...PROVIDER_IDS] as const;
+type SubscriptionId = (typeof SUBSCRIPTION_IDS)[number];
+type ClaudeCodeCommand = (args: readonly string[], io: CliIo) => Promise<number>;
+
 export interface CliIo {
   readonly stdout: NodeJS.WritableStream;
   readonly stderr: NodeJS.WritableStream;
@@ -32,9 +37,22 @@ export interface LoginFlags {
 }
 
 /** Signs in to `providerId`; without one, a picker over the providers, marking those already signed in. */
-export async function runLogin(providerId: string | undefined, flags: LoginFlags, io: CliIo = defaultIo()): Promise<number> {
+export async function runLogin(
+  providerId: string | undefined,
+  flags: LoginFlags,
+  io: CliIo = defaultIo(),
+  runClaude: ClaudeCodeCommand = runClaudeCode,
+): Promise<number> {
   return report(io, async () => {
-    const id = providerId === undefined || providerId === '' ? await pickProvider(io, 'Which subscription do you want to sign in to?', await signedIn()) : requireProvider(providerId);
+    const id = providerId === undefined || providerId === ''
+      ? await pickLoginProvider(io, 'Which subscription do you want to sign in to?', await signedIn())
+      : requireSubscription(providerId);
+    if (id === CLAUDE_CODE_ID) {
+      const exitCode = await runClaude(['auth', 'login'], io);
+      if (exitCode !== 0) throw new OAuthError('FLOW_FAILED', `Claude Code login failed with exit code ${exitCode}`);
+      say(io, 'success', 'Claude Code login is ready for claude().');
+      return;
+    }
     const provider = getProvider(id);
     const controller = new AbortController();
     const onSigint = () => controller.abort();
@@ -53,7 +71,11 @@ export async function runLogin(providerId: string | undefined, flags: LoginFlags
 }
 
 /** Forgets the login of `providerId`; without one, a picker over the stored logins. */
-export async function runLogout(providerId: string | undefined, io: CliIo = defaultIo()): Promise<number> {
+export async function runLogout(
+  providerId: string | undefined,
+  io: CliIo = defaultIo(),
+  runClaude: ClaudeCodeCommand = runClaudeCode,
+): Promise<number> {
   return report(io, async () => {
     let id: ProviderId;
     if (providerId === undefined || providerId === '') {
@@ -64,7 +86,14 @@ export async function runLogout(providerId: string | undefined, io: CliIo = defa
       }
       id = await pickProvider(io, 'Which login do you want to forget?', stored, [...stored.keys()]);
     } else {
-      id = requireProvider(providerId);
+      const selected = requireSubscription(providerId);
+      if (selected === CLAUDE_CODE_ID) {
+        const exitCode = await runClaude(['auth', 'logout'], io);
+        if (exitCode !== 0) throw new OAuthError('FLOW_FAILED', `Claude Code logout failed with exit code ${exitCode}`);
+        say(io, 'success', 'Signed out through Claude Code.');
+        return;
+      }
+      id = selected;
     }
     const had = await logout(id);
     say(io, had ? 'success' : 'info', had ? `Signed out of ${getProvider(id).name}.` : `No ${getProvider(id).name} login was stored.`);
@@ -85,7 +114,12 @@ export async function runModels(providerId: string | undefined, io: CliIo = defa
       ids = [...(await signedIn()).keys()];
       if (ids.length === 0) throw new OAuthError('NOT_LOGGED_IN', `no login is stored; sign in with e2e login <${PROVIDER_IDS.join('|')}>`);
     } else {
-      ids = [requireProvider(providerId)];
+      const selected = requireSubscription(providerId);
+      if (selected === CLAUDE_CODE_ID) {
+        printClaudeCodeModels(io);
+        return;
+      }
+      ids = [selected];
     }
     let failed = false;
     for (const [index, id] of ids.entries()) {
@@ -140,6 +174,18 @@ const PROVIDER_HINTS: Record<ProviderId, string> = {
   spacexai: 'SuperGrok or X Premium+',
 };
 
+async function pickLoginProvider(io: CliIo, message: string, stored: Map<ProviderId, string>): Promise<SubscriptionId> {
+  if (!io.isTTY) throw new OAuthError('MISCONFIGURED', `name a provider: ${SUBSCRIPTION_IDS.join(', ')}`);
+  const choice = await clack.select<SubscriptionId>({
+    message,
+    options: SUBSCRIPTION_IDS.map((id) => id === CLAUDE_CODE_ID
+      ? { value: id, label: 'Claude Code', hint: 'Claude Pro/Max; authentication is managed by the official Claude Code CLI' }
+      : { value: id, label: getProvider(id).name, hint: stored.has(id) ? `${stored.get(id)}; ${PROVIDER_HINTS[id]}` : PROVIDER_HINTS[id] }),
+  });
+  if (clack.isCancel(choice)) throw new OAuthError('CANCELLED', 'the login was cancelled');
+  return choice as SubscriptionId;
+}
+
 /** A terminal picker over providers; without a terminal the provider has to be named. */
 async function pickProvider(io: CliIo, message: string, stored: Map<ProviderId, string>, ids: readonly ProviderId[] = PROVIDER_IDS): Promise<ProviderId> {
   if (!io.isTTY) throw new OAuthError('MISCONFIGURED', `name a provider: ${ids.join(', ')}`);
@@ -176,9 +222,11 @@ async function report(io: CliIo, run: () => Promise<number | undefined>): Promis
   }
 }
 
-function requireProvider(id: string): ProviderId {
-  if (!isProviderId(id)) throw new OAuthError('MISCONFIGURED', `name a provider: ${PROVIDER_IDS.join(', ')}`);
-  return id;
+function requireSubscription(id: string): SubscriptionId {
+  if (!(SUBSCRIPTION_IDS as readonly string[]).includes(id)) {
+    throw new OAuthError('MISCONFIGURED', `name a provider: ${SUBSCRIPTION_IDS.join(', ')}`);
+  }
+  return id as SubscriptionId;
 }
 
 /** The provider's own login options from the shared flags; flags meant for another provider are ignored. */
@@ -251,6 +299,30 @@ function terminalCallbacks(providerName: string, io: CliIo, signal: AbortSignal)
 
 function defaultIo(): CliIo {
   return { stdout: process.stdout, stderr: process.stderr, isTTY: process.stdout.isTTY === true && process.stdin.isTTY === true };
+}
+
+function printClaudeCodeModels(io: CliIo): void {
+  io.stdout.write([
+    'Claude Code (anthropic): model selection is managed by the installed Claude Code CLI',
+    '  sonnet  latest Sonnet available to your account',
+    '  opus    latest Opus available to your account',
+    '  haiku   latest Haiku available to your account',
+    '  fable   latest Fable available to your account (when available)',
+    'A full model name is also accepted. Run `claude --help` for the aliases supported by your installed version.',
+    '',
+  ].join('\n'));
+}
+
+function runClaudeCode(args: readonly string[], _io: CliIo): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const child = spawn('claude', [...args], { stdio: 'inherit', windowsHide: true });
+    child.once('error', (cause) => reject(new OAuthError(
+      'MISCONFIGURED',
+      `Claude Code CLI could not start. Install it and run "claude auth login": ${cause.message}`,
+      { cause },
+    )));
+    child.once('close', (code, signal) => resolve(code ?? (signal === null ? 1 : 130)));
+  });
 }
 
 /** Best effort: the URL is printed regardless, so a failure to open a browser is not an error. */

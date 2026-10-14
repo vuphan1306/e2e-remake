@@ -330,7 +330,11 @@ export async function init(cwd: string, options: InitOptions = {}): Promise<Init
   const next = [
     options.directory === undefined ? undefined : `cd ${shellArgument(options.directory)}`,
     install ? undefined : `${manager} install`,
-    subscription === undefined ? undefined : execCommand(manager, `e2e login ${subscription}`),
+    subscription === undefined
+      ? undefined
+      : subscription === 'anthropic'
+        ? 'claude auth login'
+        : execCommand(manager, `e2e login ${subscription}`),
     `${scaffold.needsAppUrl ? 'APP_URL=http://localhost:3000 ' : ''}${runCommand}`,
   ].filter((step) => step !== undefined);
   clack.outro(`Next: ${next.join(', then ')}`);
