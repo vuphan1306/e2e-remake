@@ -1,0 +1,1150 @@
+{
+  "schemaVersion": "report-1",
+  "run": {
+    "id": "01a13888-c950-77df-b6c4-abdb4693a4f5",
+    "specVersion": "0.1",
+    "runner": {
+      "name": "e2e",
+      "version": "0.20.0"
+    },
+    "status": "passed",
+    "exitCode": 0,
+    "startedAt": "2026-10-14T03:50:51.799Z",
+    "finishedAt": "2026-10-14T03:51:32.381Z",
+    "project": {
+      "id": "blackbox-tests",
+      "configDigest": "0e4ceec66c04637dce87078e3e5180098e52c35b0148f53504f273c935b78a17"
+    },
+    "environment": {
+      "ci": false,
+      "trustNoticeShown": false,
+      "os": "win32 10.0.26200",
+      "arch": "x64",
+      "runtime": "node v24.8.0"
+    },
+    "targets": [
+      {
+        "id": "desktop",
+        "index": 0,
+        "platform": "web",
+        "baseOrigin": "https://www.saucedemo.com",
+        "environment": "production",
+        "engine": {
+          "name": "web",
+          "version": "0.12.0",
+          "spiVersion": 1
+        },
+        "capabilities": [
+          "actions",
+          "artifacts",
+          "browser",
+          "keyboard",
+          "location",
+          "observation",
+          "pointer",
+          "state"
+        ],
+        "artifactCapabilities": [
+          "screenshot",
+          "video"
+        ],
+        "stateCapability": true
+      },
+      {
+        "id": "mobile-web",
+        "index": 1,
+        "platform": "web",
+        "baseOrigin": "https://www.saucedemo.com",
+        "environment": "production",
+        "engine": {
+          "name": "web",
+          "version": "0.12.0",
+          "spiVersion": 1
+        },
+        "capabilities": [
+          "actions",
+          "artifacts",
+          "browser",
+          "keyboard",
+          "location",
+          "observation",
+          "pointer",
+          "state"
+        ],
+        "artifactCapabilities": [
+          "screenshot",
+          "video"
+        ],
+        "stateCapability": true
+      }
+    ],
+    "serialGroups": [],
+    "results": [
+      {
+        "id": "c16fc3f227fd4c5a61311cc15062a6d22c84835a1b6a4853c8545bcb5299a70d",
+        "testId": "tests/claude-act.e2e.ts::Claude%20can%20complete%20the%20demo%20login%20flow",
+        "kind": "test",
+        "declarationIndex": 0,
+        "titlePath": [
+          "Claude can complete the demo login flow"
+        ],
+        "file": "tests/claude-act.e2e.ts",
+        "source": {
+          "file": "tests/claude-act.e2e.ts",
+          "line": 4,
+          "column": 1
+        },
+        "targetId": "desktop",
+        "platform": "web",
+        "agent": "default",
+        "repeat": 0,
+        "tags": [],
+        "selected": true,
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "01a13888-d1aa-7d66-8777-fe45f89c26a4",
+            "index": 0,
+            "status": "passed",
+            "startedAt": "2026-10-14T03:50:53.099Z",
+            "durationMs": 35368,
+            "artifacts": [],
+            "secondaryErrors": [],
+            "cleanup": "complete",
+            "steps": [
+              {
+                "id": "01a13888-d1aa-7d66-8777-fe45f89c26a4:0",
+                "index": 0,
+                "kind": "app",
+                "api": "app.open",
+                "label": "/",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:54.003Z",
+                "durationMs": 3580,
+                "events": [],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1aa-7d66-8777-fe45f89c26a4:1",
+                "index": 1,
+                "kind": "agent",
+                "api": "agent.act",
+                "label": "Log in with username \"standard_user\" and password \"secret_sauce\". Stop after the products page is visible.",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:57.594Z",
+                "durationMs": 29990,
+                "events": [
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:50:58.429Z",
+                    "durationMs": 258,
+                    "status": "passed",
+                    "bytes": 426,
+                    "count": 12
+                  },
+                  {
+                    "kind": "engine",
+                    "startedAt": "2026-10-14T03:51:06.909Z",
+                    "durationMs": 100,
+                    "status": "passed",
+                    "name": "type",
+                    "detail": "type \"standard_user\" into textbox \"Username\""
+                  },
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:07.009Z",
+                    "durationMs": 144,
+                    "status": "passed",
+                    "bytes": 458,
+                    "count": 12
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:50:58.718Z",
+                    "durationMs": 8436,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 17768,
+                    "inputTokens": 17162,
+                    "outputTokens": 606
+                  },
+                  {
+                    "kind": "engine",
+                    "startedAt": "2026-10-14T03:51:14.525Z",
+                    "durationMs": 26,
+                    "status": "passed",
+                    "name": "type",
+                    "detail": "type \"secret_sauce\" into textbox \"Password\""
+                  },
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:14.551Z",
+                    "durationMs": 2179,
+                    "status": "passed",
+                    "bytes": 456,
+                    "count": 12
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:07.157Z",
+                    "durationMs": 9574,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 18250,
+                    "inputTokens": 17730,
+                    "outputTokens": 520
+                  },
+                  {
+                    "kind": "engine",
+                    "startedAt": "2026-10-14T03:51:22.127Z",
+                    "durationMs": 27,
+                    "status": "passed",
+                    "name": "tap",
+                    "detail": "tap button \"Login\""
+                  },
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:22.154Z",
+                    "durationMs": 442,
+                    "status": "passed",
+                    "bytes": 3701,
+                    "count": 65
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:16.734Z",
+                    "durationMs": 5863,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 18460,
+                    "inputTokens": 18105,
+                    "outputTokens": 355
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:22.598Z",
+                    "durationMs": 4986,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 11514,
+                    "inputTokens": 11131,
+                    "outputTokens": 383
+                  }
+                ],
+                "agent": "default",
+                "artifacts": [],
+                "metrics": {
+                  "modelCalls": 4,
+                  "actionSteps": 3,
+                  "observationBytes": 3701,
+                  "contextBytes": 0,
+                  "ledgerBytes": 23
+                },
+                "model": {
+                  "provider": "anthropic.claude-code",
+                  "model": "claude-haiku-5-5",
+                  "endpoint": "provider-default",
+                  "adapterVersion": "executor/e2e-default-agent@2",
+                  "policyVersion": "e2e-default-agent/2",
+                  "calls": 4,
+                  "tokenAccounting": "provider",
+                  "inputTokens": 64128,
+                  "outputTokens": 1864,
+                  "peakTokensPerCall": 18460,
+                  "cacheReadTokens": 36613,
+                  "cacheWriteTokens": 27501
+                },
+                "observationRevision": "b30",
+                "explanation": "Typed standard_user and secret_sauce into the login form and tapped Login. The page navigated to /inventory.html and shows the \"Products\" heading with six product listings and the sort control set to Name (A to Z).",
+                "turns": [
+                  {
+                    "index": 1,
+                    "calls": [
+                      "type({\"target\":\"n5\",\"value\":\"standard_user\"})"
+                    ],
+                    "outcome": "[type] Typed into #n5.\n\nScreen changes since revision b2 (now revision b4, path /, 12 nodes): 1 changed. Every node not listed as removed is still on screen under the id you have.\nchanged #n5 textbox \"Username\" value=\"standard_user\" (was: #n5 textbox \"Username\")"
+                  },
+                  {
+                    "index": 2,
+                    "calls": [
+                      "type({\"target\":\"n6\",\"value\":\"secret_sauce\"})"
+                    ],
+                    "outcome": "[type] Typed into #n6.\n\nNo listed node changed within the wait after this action (re-observed as revision b26, path /); the ids you have stay valid. The listing shows only what the tree describes: a drawn change needs a screenshot to see."
+                  },
+                  {
+                    "index": 3,
+                    "calls": [
+                      "tap({\"target\":\"n8\"})"
+                    ],
+                    "outcome": "[tap] Tapped #n8.\n\nThe screen changed substantially since revision b26. Current screen (revision b30, path /inventory.html, 65 nodes):\n#root document \"Swag Labs\"\n #n81001 banner\n  #n81002 button \"Open Menu\"\n  #n81003 image \"Open Menu\"\n  #n81004 text=\"Swag Labs\"\n  #n81005 button \"Cart, empty\"\n  #n81006 text=\"Products\"\n  #n81007 text=\"Name (A to Z)\"\n  #n81008 combobox \"Sort products\" value=\"az\"\n   #n81009 option \"Name (A to Z)\" [selected]\n   #n81010 option \"Name (Z to A)\"\n   #n81011 option \"Price (low to high)\"\n   #n81012 option \"Price (high to low)\"\n #n81013 main\n  #n81014 button \"View details …[truncated]"
+                  },
+                  {
+                    "index": 4,
+                    "calls": [
+                      "complete_step({\"status\":\"passed\",\"summary\":\"Typed standard_user and secret_sauce into the login form and tapped Login. The page navigated to /inventory.html and shows the \\\"Products\\\" heading with six…[truncated]"
+                    ],
+                    "outcome": "[complete_step] Step concluded."
+                  }
+                ],
+                "screen": {
+                  "location": "https://www.saucedemo.com/inventory.html",
+                  "nodes": 65,
+                  "changes": []
+                },
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1aa-7d66-8777-fe45f89c26a4:2",
+                "index": 2,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByText(\"Products\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:27.587Z",
+                "durationMs": 9,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:51:27.588Z",
+                    "durationMs": 8,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "03b264514786713230a2b013e10a5bd5625a2c74ddeaabd40e0ded60a349aded",
+        "testId": "tests/claude-act.e2e.ts::Claude%20can%20complete%20the%20demo%20login%20flow",
+        "kind": "test",
+        "declarationIndex": 0,
+        "titlePath": [
+          "Claude can complete the demo login flow"
+        ],
+        "file": "tests/claude-act.e2e.ts",
+        "source": {
+          "file": "tests/claude-act.e2e.ts",
+          "line": 4,
+          "column": 1
+        },
+        "targetId": "mobile-web",
+        "platform": "web",
+        "agent": "default",
+        "repeat": 0,
+        "tags": [],
+        "selected": true,
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "01a13888-d1dd-7dc6-9ec7-1c6c373339b7",
+            "index": 0,
+            "status": "passed",
+            "startedAt": "2026-10-14T03:50:53.149Z",
+            "durationMs": 39132,
+            "artifacts": [],
+            "secondaryErrors": [],
+            "cleanup": "complete",
+            "steps": [
+              {
+                "id": "01a13888-d1dd-7dc6-9ec7-1c6c373339b7:0",
+                "index": 0,
+                "kind": "app",
+                "api": "app.open",
+                "label": "/",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:54.002Z",
+                "durationMs": 3586,
+                "events": [],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1dd-7dc6-9ec7-1c6c373339b7:1",
+                "index": 1,
+                "kind": "agent",
+                "api": "agent.act",
+                "label": "Log in with username \"standard_user\" and password \"secret_sauce\". Stop after the products page is visible.",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:57.591Z",
+                "durationMs": 34218,
+                "events": [
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:50:58.419Z",
+                    "durationMs": 236,
+                    "status": "passed",
+                    "bytes": 426,
+                    "count": 12
+                  },
+                  {
+                    "kind": "engine",
+                    "startedAt": "2026-10-14T03:51:07.522Z",
+                    "durationMs": 62,
+                    "status": "passed",
+                    "name": "type",
+                    "detail": "type \"standard_user\" into textbox \"Username\""
+                  },
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:07.584Z",
+                    "durationMs": 134,
+                    "status": "passed",
+                    "bytes": 458,
+                    "count": 12
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:50:58.686Z",
+                    "durationMs": 9035,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 17945,
+                    "inputTokens": 17304,
+                    "outputTokens": 641
+                  },
+                  {
+                    "kind": "engine",
+                    "startedAt": "2026-10-14T03:51:14.839Z",
+                    "durationMs": 7,
+                    "status": "passed",
+                    "name": "type",
+                    "detail": "type \"secret_sauce\" into textbox \"Password\""
+                  },
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:14.846Z",
+                    "durationMs": 2184,
+                    "status": "passed",
+                    "bytes": 456,
+                    "count": 12
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:07.725Z",
+                    "durationMs": 9306,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 18159,
+                    "inputTokens": 17700,
+                    "outputTokens": 459
+                  },
+                  {
+                    "kind": "engine",
+                    "startedAt": "2026-10-14T03:51:22.005Z",
+                    "durationMs": 101,
+                    "status": "passed",
+                    "name": "tap",
+                    "detail": "tap button \"Login\""
+                  },
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:22.106Z",
+                    "durationMs": 366,
+                    "status": "passed",
+                    "bytes": 3670,
+                    "count": 64
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:17.034Z",
+                    "durationMs": 5438,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 18465,
+                    "inputTokens": 18076,
+                    "outputTokens": 389
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:22.474Z",
+                    "durationMs": 9334,
+                    "status": "passed",
+                    "name": "executor",
+                    "count": 23041,
+                    "inputTokens": 22508,
+                    "outputTokens": 533
+                  }
+                ],
+                "agent": "default",
+                "artifacts": [],
+                "metrics": {
+                  "modelCalls": 4,
+                  "actionSteps": 3,
+                  "observationBytes": 3670,
+                  "contextBytes": 0,
+                  "ledgerBytes": 23
+                },
+                "model": {
+                  "provider": "anthropic.claude-code",
+                  "model": "claude-haiku-5-5",
+                  "endpoint": "provider-default",
+                  "adapterVersion": "executor/e2e-default-agent@2",
+                  "policyVersion": "e2e-default-agent/2",
+                  "calls": 4,
+                  "tokenAccounting": "provider",
+                  "inputTokens": 75588,
+                  "outputTokens": 2022,
+                  "peakTokensPerCall": 23041,
+                  "cacheReadTokens": 47710,
+                  "cacheWriteTokens": 27862
+                },
+                "observationRevision": "b29",
+                "explanation": "Typed standard_user and secret_sauce, then tapped Login. The page moved to /inventory.html and shows the Products heading with six items, including Sauce Labs Backpack at $29.99. Stopped there as the step asked.",
+                "turns": [
+                  {
+                    "index": 1,
+                    "calls": [
+                      "type({\"target\":\"n5\",\"value\":\"standard_user\"})"
+                    ],
+                    "outcome": "[type] Typed into #n5.\n\nScreen changes since revision b2 (now revision b4, path /, 12 nodes): 1 changed. Every node not listed as removed is still on screen under the id you have.\nchanged #n5 textbox \"Username\" value=\"standard_user\" (was: #n5 textbox \"Username\")"
+                  },
+                  {
+                    "index": 2,
+                    "calls": [
+                      "type({\"target\":\"n6\",\"value\":\"secret_sauce\"})"
+                    ],
+                    "outcome": "[type] Typed into #n6.\n\nNo listed node changed within the wait after this action (re-observed as revision b26, path /); the ids you have stay valid. The listing shows only what the tree describes: a drawn change needs a screenshot to see."
+                  },
+                  {
+                    "index": 3,
+                    "calls": [
+                      "tap({\"target\":\"n8\"})"
+                    ],
+                    "outcome": "[tap] Tapped #n8.\n\nThe screen changed substantially since revision b26. Current screen (revision b29, path /inventory.html, 64 nodes):\n#root document \"Swag Labs\"\n #n81001 banner\n  #n81002 button \"Open Menu\"\n  #n81003 image \"Open Menu\"\n  #n81004 text=\"Swag Labs\"\n  #n81005 button \"Cart, empty\"\n  #n81006 text=\"Products\"\n  #n81007 combobox \"Sort products\" value=\"az\"\n   #n81008 option \"Name (A to Z)\" [selected]\n   #n81009 option \"Name (Z to A)\"\n   #n81010 option \"Price (low to high)\"\n   #n81011 option \"Price (high to low)\"\n #n81012 main\n  #n81013 button \"View details for Sauce Labs Backpack\" href=\"…[truncated]"
+                  },
+                  {
+                    "index": 4,
+                    "calls": [
+                      "complete_step({\"status\":\"passed\",\"summary\":\"Typed standard_user and secret_sauce, then tapped Login. The page moved to /inventory.html and shows the Products heading with six items, including Sauce La…[truncated]"
+                    ],
+                    "outcome": "[complete_step] Step concluded."
+                  }
+                ],
+                "screen": {
+                  "location": "https://www.saucedemo.com/inventory.html",
+                  "nodes": 64,
+                  "changes": []
+                },
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1dd-7dc6-9ec7-1c6c373339b7:2",
+                "index": 2,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByText(\"Products\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:31.810Z",
+                "durationMs": 8,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:51:31.811Z",
+                    "durationMs": 7,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "6f042eb45941891928e762c255e98a51e182f3da7348859233f4bba86bba03c4",
+        "testId": "tests/claude.e2e.ts::Claude%20can%20judge%20the%20loaded%20login%20page",
+        "kind": "test",
+        "declarationIndex": 0,
+        "titlePath": [
+          "Claude can judge the loaded login page"
+        ],
+        "file": "tests/claude.e2e.ts",
+        "source": {
+          "file": "tests/claude.e2e.ts",
+          "line": 3,
+          "column": 1
+        },
+        "targetId": "desktop",
+        "platform": "web",
+        "agent": "default",
+        "repeat": 0,
+        "tags": [],
+        "selected": true,
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "01a13888-d1ca-73ec-a526-4e47f88ac83f",
+            "index": 0,
+            "status": "passed",
+            "startedAt": "2026-10-14T03:50:53.130Z",
+            "durationMs": 16194,
+            "artifacts": [
+              {
+                "id": "01a13888-d1ca-73ec-a526-4e47f88ac83f:artifact:0",
+                "kind": "screenshot",
+                "mediaType": "image/png",
+                "redaction": "complete",
+                "producer": {
+                  "kind": "step",
+                  "stepId": "01a13888-d1ca-73ec-a526-4e47f88ac83f:1"
+                },
+                "path": "claude-can-judge-the-loaded-login-page-6f042eb459418919/attempt-1/screenshots/001-assert.png",
+                "size": 27700,
+                "sha256": "ac0c9066393a29ac1fb30fc6c4e197e9aa2ebf8a7d467fa753843093c4ef08fe"
+              }
+            ],
+            "secondaryErrors": [],
+            "cleanup": "complete",
+            "steps": [
+              {
+                "id": "01a13888-d1ca-73ec-a526-4e47f88ac83f:0",
+                "index": 0,
+                "kind": "app",
+                "api": "app.open",
+                "label": "/",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:54.084Z",
+                "durationMs": 3505,
+                "events": [],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1ca-73ec-a526-4e47f88ac83f:1",
+                "index": 1,
+                "kind": "agent",
+                "api": "agent.assert",
+                "label": "The Swag Labs login page is visible with username, password, and login controls.",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:57.590Z",
+                "durationMs": 8713,
+                "events": [
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:50:57.591Z",
+                    "durationMs": 235,
+                    "status": "passed",
+                    "bytes": 426,
+                    "count": 12
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:50:57.827Z",
+                    "durationMs": 8271,
+                    "status": "passed",
+                    "name": "agent-judgment-2",
+                    "count": 3002,
+                    "inputTokens": 2566,
+                    "outputTokens": 436
+                  }
+                ],
+                "agent": "default",
+                "artifacts": [
+                  "01a13888-d1ca-73ec-a526-4e47f88ac83f:artifact:0"
+                ],
+                "metrics": {
+                  "modelCalls": 1,
+                  "actionSteps": 0,
+                  "observationBytes": 426,
+                  "contextBytes": 0,
+                  "ledgerBytes": 0
+                },
+                "model": {
+                  "provider": "anthropic.claude-code",
+                  "model": "claude-haiku-5-5",
+                  "endpoint": "provider-default",
+                  "adapterVersion": "ai-sdk/0.20.0",
+                  "policyVersion": "policy-0.3",
+                  "calls": 1,
+                  "tokenAccounting": "provider",
+                  "inputTokens": 2566,
+                  "outputTokens": 436,
+                  "peakTokensPerCall": 3002,
+                  "cacheReadTokens": 2564,
+                  "cacheWriteTokens": 0
+                },
+                "observationRevision": "b1",
+                "explanation": "The observation shows the Swag Labs page (title \"Swag Labs\") with a \"Login\" form containing a \"Username\" textbox, a \"Password\" textbox, and a \"Login\" button. That matches the instruction that the login page is visible with username, password, and login controls.",
+                "screen": {
+                  "location": "https://www.saucedemo.com/",
+                  "nodes": 12,
+                  "changes": []
+                },
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3ef26f6fa4fc3c6bd54ceb1a470a20264ab9bfb41c1d12fc0bc8fbf1ea145ad5",
+        "testId": "tests/claude.e2e.ts::Claude%20can%20judge%20the%20loaded%20login%20page",
+        "kind": "test",
+        "declarationIndex": 0,
+        "titlePath": [
+          "Claude can judge the loaded login page"
+        ],
+        "file": "tests/claude.e2e.ts",
+        "source": {
+          "file": "tests/claude.e2e.ts",
+          "line": 3,
+          "column": 1
+        },
+        "targetId": "mobile-web",
+        "platform": "web",
+        "agent": "default",
+        "repeat": 0,
+        "tags": [],
+        "selected": true,
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "01a13888-efbb-7c9a-9525-0c44e5c602a3",
+            "index": 0,
+            "status": "passed",
+            "startedAt": "2026-10-14T03:51:00.795Z",
+            "durationMs": 6132,
+            "artifacts": [
+              {
+                "id": "01a13888-efbb-7c9a-9525-0c44e5c602a3:artifact:0",
+                "kind": "screenshot",
+                "mediaType": "image/png",
+                "redaction": "complete",
+                "producer": {
+                  "kind": "step",
+                  "stepId": "01a13888-efbb-7c9a-9525-0c44e5c602a3:1"
+                },
+                "path": "claude-can-judge-the-loaded-login-page-3ef26f6fa4fc3c6b/attempt-1/screenshots/001-assert.png",
+                "size": 23507,
+                "sha256": "a5247cfc1db0a4893a903bab5bec5b6301b28ec56c0fe97071e895dfd2bc85f5"
+              }
+            ],
+            "secondaryErrors": [],
+            "cleanup": "complete",
+            "steps": [
+              {
+                "id": "01a13888-efbb-7c9a-9525-0c44e5c602a3:0",
+                "index": 0,
+                "kind": "app",
+                "api": "app.open",
+                "label": "/",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:01.058Z",
+                "durationMs": 563,
+                "events": [],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-efbb-7c9a-9525-0c44e5c602a3:1",
+                "index": 1,
+                "kind": "agent",
+                "api": "agent.assert",
+                "label": "The Swag Labs login page is visible with username, password, and login controls.",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:01.623Z",
+                "durationMs": 4954,
+                "events": [
+                  {
+                    "kind": "observation",
+                    "startedAt": "2026-10-14T03:51:01.624Z",
+                    "durationMs": 64,
+                    "status": "passed",
+                    "bytes": 426,
+                    "count": 12
+                  },
+                  {
+                    "kind": "model",
+                    "startedAt": "2026-10-14T03:51:01.689Z",
+                    "durationMs": 4798,
+                    "status": "passed",
+                    "name": "agent-judgment-2",
+                    "count": 2897,
+                    "inputTokens": 2565,
+                    "outputTokens": 332
+                  }
+                ],
+                "agent": "default",
+                "artifacts": [
+                  "01a13888-efbb-7c9a-9525-0c44e5c602a3:artifact:0"
+                ],
+                "metrics": {
+                  "modelCalls": 1,
+                  "actionSteps": 0,
+                  "observationBytes": 426,
+                  "contextBytes": 0,
+                  "ledgerBytes": 0
+                },
+                "model": {
+                  "provider": "anthropic.claude-code",
+                  "model": "claude-haiku-5-5",
+                  "endpoint": "provider-default",
+                  "adapterVersion": "ai-sdk/0.20.0",
+                  "policyVersion": "policy-0.3",
+                  "calls": 1,
+                  "tokenAccounting": "provider",
+                  "inputTokens": 2565,
+                  "outputTokens": 332,
+                  "peakTokensPerCall": 2897,
+                  "cacheReadTokens": 635,
+                  "cacheWriteTokens": 1928
+                },
+                "observationRevision": "b1",
+                "explanation": "The observation shows the Swag Labs page (title \"Swag Labs\") with a login form containing a Username textbox (#n5), a Password textbox (#n6), and a Login button (#n8). The instruction asks whether the login page is visible with username, password, and login controls, and all three are present, so the assertion holds.",
+                "screen": {
+                  "location": "https://www.saucedemo.com/",
+                  "nodes": 12,
+                  "changes": []
+                },
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "3e6fa7d8533e7f0fa76ca152fc6329bb659409ef4ae84693d5ae7eb31bdbac15",
+        "testId": "tests/public.e2e.ts::the%20public%20home%20page%20loads%20successfully",
+        "kind": "test",
+        "declarationIndex": 0,
+        "titlePath": [
+          "the public home page loads successfully"
+        ],
+        "file": "tests/public.e2e.ts",
+        "source": {
+          "file": "tests/public.e2e.ts",
+          "line": 4,
+          "column": 1
+        },
+        "targetId": "desktop",
+        "platform": "web",
+        "agent": "default",
+        "repeat": 0,
+        "tags": [],
+        "selected": true,
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "01a13888-d1dc-7272-8ced-9d92e7d9f7bf",
+            "index": 0,
+            "status": "passed",
+            "startedAt": "2026-10-14T03:50:53.148Z",
+            "durationMs": 6508,
+            "artifacts": [],
+            "secondaryErrors": [],
+            "cleanup": "complete",
+            "steps": [
+              {
+                "id": "01a13888-d1dc-7272-8ced-9d92e7d9f7bf:0",
+                "index": 0,
+                "kind": "app",
+                "api": "app.open",
+                "label": "/",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:54.006Z",
+                "durationMs": 3582,
+                "events": [],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1dc-7272-8ced-9d92e7d9f7bf:1",
+                "index": 1,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByRole(\"textbox\", name: \"Username\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:57.592Z",
+                "durationMs": 196,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:50:57.592Z",
+                    "durationMs": 196,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1dc-7272-8ced-9d92e7d9f7bf:2",
+                "index": 2,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByRole(\"textbox\", name: \"Password\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:57.788Z",
+                "durationMs": 12,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:50:57.788Z",
+                    "durationMs": 12,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13888-d1dc-7272-8ced-9d92e7d9f7bf:3",
+                "index": 3,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByRole(\"button\", name: \"Login\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:50:57.801Z",
+                "durationMs": 8,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:50:57.801Z",
+                    "durationMs": 8,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "846d066bacd298a824160e43143b38ff6f350c731bee2fe38e4b6579a77779ba",
+        "testId": "tests/public.e2e.ts::the%20public%20home%20page%20loads%20successfully",
+        "kind": "test",
+        "declarationIndex": 0,
+        "titlePath": [
+          "the public home page loads successfully"
+        ],
+        "file": "tests/public.e2e.ts",
+        "source": {
+          "file": "tests/public.e2e.ts",
+          "line": 4,
+          "column": 1
+        },
+        "targetId": "mobile-web",
+        "platform": "web",
+        "agent": "default",
+        "repeat": 0,
+        "tags": [],
+        "selected": true,
+        "status": "passed",
+        "attempts": [
+          {
+            "id": "01a13889-07b6-7607-a7e3-3e3322613f98",
+            "index": 0,
+            "status": "passed",
+            "startedAt": "2026-10-14T03:51:06.934Z",
+            "durationMs": 617,
+            "artifacts": [],
+            "secondaryErrors": [],
+            "cleanup": "complete",
+            "steps": [
+              {
+                "id": "01a13889-07b6-7607-a7e3-3e3322613f98:0",
+                "index": 0,
+                "kind": "app",
+                "api": "app.open",
+                "label": "/",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:07.014Z",
+                "durationMs": 340,
+                "events": [],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13889-07b6-7607-a7e3-3e3322613f98:1",
+                "index": 1,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByRole(\"textbox\", name: \"Username\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:07.355Z",
+                "durationMs": 63,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:51:07.355Z",
+                    "durationMs": 63,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13889-07b6-7607-a7e3-3e3322613f98:2",
+                "index": 2,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByRole(\"textbox\", name: \"Password\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:07.418Z",
+                "durationMs": 6,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:51:07.418Z",
+                    "durationMs": 6,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              },
+              {
+                "id": "01a13889-07b6-7607-a7e3-3e3322613f98:3",
+                "index": 3,
+                "kind": "assertion",
+                "api": "expect.toBeVisible",
+                "label": "getByRole(\"button\", name: \"Login\")",
+                "status": "passed",
+                "startedAt": "2026-10-14T03:51:07.424Z",
+                "durationMs": 7,
+                "events": [
+                  {
+                    "kind": "poll",
+                    "name": "expect",
+                    "startedAt": "2026-10-14T03:51:07.424Z",
+                    "durationMs": 7,
+                    "status": "passed",
+                    "count": 1
+                  }
+                ],
+                "artifacts": [],
+                "source": {
+                  "file": "node_modules/e2e/dist/run/steps.js",
+                  "line": 30,
+                  "column": 16
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "errors": [],
+    "summary": {
+      "discovered": 6,
+      "selected": 6,
+      "executed": 6,
+      "passed": 6,
+      "failed": 0,
+      "interrupted": 0,
+      "flaky": 0,
+      "skipped": 0
+    },
+    "limits": {
+      "maxAgentContextBytes": 16384,
+      "maxLedgerBytes": 8192,
+      "maxObservationBytes": 262144,
+      "maxEventsPerStep": 1000,
+      "maxModelTokensPerCall": 64000
+    },
+    "usage": {
+      "discoveredResults": 6,
+      "maxAgentContextBytes": 0,
+      "maxLedgerBytes": 23,
+      "maxObservationBytes": 3701,
+      "artifactBytes": 51207,
+      "downloads": 0,
+      "events": 34,
+      "modelTokens": 149501,
+      "maxModelCallsInStep": 4,
+      "maxActionStepsInStep": 3,
+      "modelCachedTokens": 87522
+    }
+  }
+}

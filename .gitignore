@@ -26,3 +26,5 @@ packages/e2e/docs/
 .env*
 # `pnpm run canary` writes this changeset and consumes it in the same run.
 .changeset/canary.md
+# Local package archives from `pnpm --dir packages/e2e pack`; examples/with-black-box installs one.
+/artifacts/

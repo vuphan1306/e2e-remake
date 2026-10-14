@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="e2e" tests="6" failures="0" errors="0" skipped="0" time="103.951">
+  <testsuite name="tests/claude-act.e2e.ts" tests="2" failures="0" errors="0" skipped="0" time="74.500">
+    <testcase name="Claude can complete the demo login flow [desktop]" classname="tests/claude-act.e2e.ts" time="35.368"/>
+    <testcase name="Claude can complete the demo login flow [mobile-web]" classname="tests/claude-act.e2e.ts" time="39.132"/>
+  </testsuite>
+  <testsuite name="tests/claude.e2e.ts" tests="2" failures="0" errors="0" skipped="0" time="22.326">
+    <testcase name="Claude can judge the loaded login page [desktop]" classname="tests/claude.e2e.ts" time="16.194"/>
+    <testcase name="Claude can judge the loaded login page [mobile-web]" classname="tests/claude.e2e.ts" time="6.132"/>
+  </testsuite>
+  <testsuite name="tests/public.e2e.ts" tests="2" failures="0" errors="0" skipped="0" time="7.125">
+    <testcase name="the public home page loads successfully [desktop]" classname="tests/public.e2e.ts" time="6.508"/>
+    <testcase name="the public home page loads successfully [mobile-web]" classname="tests/public.e2e.ts" time="0.617"/>
+  </testsuite>
+</testsuites>
