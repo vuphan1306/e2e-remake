@@ -18,14 +18,21 @@ Configure a model in `e2e.config.ts`. Its provider reads the API key:
 `AI_GATEWAY_API_KEY`, `gateway()` uses a
 [Vercel OIDC token](/models#vercel-oidc-instead-of-a-key). A missing
 credential fails on the first model call. Subscription models use a stored
-login instead.
+login instead, except `claude()` which delegates authentication to the
+official Claude Code CLI.
 See [Models](/models) and [Subscriptions](/subscriptions).
 
 | Variable | Reading | Effect |
 | --- | --- | --- |
-| `E2E_OAUTH_CREDENTIALS` | value | The stored subscription logins as JSON, the contents of `oauth.json`, for a machine nobody can sign in on. The `e2e/oauth/*` models and `e2e models` read it in place of `$XDG_CONFIG_HOME/e2e/oauth.json`; `e2e login` and `e2e logout` refuse to change it, and refreshed tokens are not written back |
+| `E2E_REMAKE_OAUTH_CREDENTIALS` | value | The stored non-Claude subscription logins as JSON, the contents of `oauth.json`, for a machine nobody can sign in on. `chatgpt()`, `copilot()`, `opencodeConsole()`, and `grok()` read it in place of `$XDG_CONFIG_HOME/e2e-remake/oauth.json`; login and logout refuse to change it, and refreshed tokens are not written back. `claude()` does not read it. `E2E_OAUTH_CREDENTIALS` remains a legacy fallback. |
 | `OPENCODE_API_KEY` | value | An OpenCode Console service account API key or an OpenCode Go subscription API key; `opencodeConsole()` uses it in place of the stored `opencode-console` login; `e2e models` still reads the stored login. OpenCode reads the same variable |
-| `XDG_CONFIG_HOME` | value | Directory of the stored logins, `$XDG_CONFIG_HOME/e2e/oauth.json`; default `~/.config/e2e/oauth.json` |
+| `XDG_CONFIG_HOME` | value | Directory of the stored logins, `$XDG_CONFIG_HOME/e2e-remake/oauth.json`; default `~/.config/e2e-remake/oauth.json` |
+
+`claude()` launches `claude -p` and intentionally removes
+`ANTHROPIC_API_KEY`, `ANTHROPIC_AUTH_TOKEN`, `CLAUDE_CODE_USE_BEDROCK`,
+`CLAUDE_CODE_USE_VERTEX`, and `CLAUDE_CODE_USE_FOUNDRY` from that child
+process. This keeps the constructor bound to the locally signed-in Claude
+subscription instead of silently switching to API or cloud-provider billing.
 
 ## Credentials and secrets
 

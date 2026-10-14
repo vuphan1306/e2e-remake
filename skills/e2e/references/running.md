@@ -18,8 +18,8 @@ npx e2e init [directory] [--yes]   # scaffold a project, refresh the agent skill
 npx e2e guide [topic]              # print this skill; topics: setup, writing-tests, agent,
                                    # running, explore, debugging, mcp, bug-bash
 npx e2e cache ls|clear|stats       # inspect or empty the replay cache
-npx e2e login|logout|models [provider]  # e2e/oauth subscription logins: openai,
-                                   # github-copilot, opencode-console, spacexai
+npx e2e login|logout|models [provider]  # Claude delegates to the official Claude Code CLI;
+                                   # other providers: openai, github-copilot, opencode-console, spacexai
 npx e2e mcp [--target <name>]      # MCP server for a coding agent (topic mcp)
 npx e2e feedback -m <text> [opts]  # report a problem with e2e itself
 npx e2e telemetry [disable|enable] # anonymous usage telemetry: status or switch

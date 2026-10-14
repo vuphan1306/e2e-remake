@@ -169,6 +169,7 @@ without `--yes` exits 2 and names the flag.
 
 <CodeGroup>
 ```bash npm
+npx e2e-remake login anthropic       # delegates to `claude auth login`
 npx e2e login openai              # ChatGPT, browser sign-in
 npx e2e login openai --device     # sign in with a device code
 npx e2e login github-copilot --from-gh  # use your GitHub CLI login
@@ -179,6 +180,7 @@ npx e2e login                     # choose a provider
 ```
 
 ```bash pnpm
+pnpm exec e2e-remake login anthropic  # delegates to `claude auth login`
 pnpm exec e2e login openai              # ChatGPT, browser sign-in
 pnpm exec e2e login openai --device     # sign in with a device code
 pnpm exec e2e login github-copilot --from-gh  # use your GitHub CLI login
@@ -189,6 +191,7 @@ pnpm exec e2e login                     # choose a provider
 ```
 
 ```bash bun
+bunx e2e-remake login anthropic     # delegates to `claude auth login`
 bunx e2e login openai              # ChatGPT, browser sign-in
 bunx e2e login openai --device     # sign in with a device code
 bunx e2e login github-copilot --from-gh  # use your GitHub CLI login
@@ -199,14 +202,16 @@ bunx e2e login                     # choose a provider
 ```
 </CodeGroup>
 
-Signs in to a subscription and stores credentials in
-`$XDG_CONFIG_HOME/e2e/oauth.json`, by default `~/.config/e2e/oauth.json`. A failed sign-in exits 1, a cancelled one 130; an
+Signs in to a subscription. For `anthropic`, the command starts the official
+Claude Code `auth login` command and e2e-remake stores no Claude credential.
+Other providers store credentials in `$XDG_CONFIG_HOME/e2e-remake/oauth.json`,
+by default `~/.config/e2e-remake/oauth.json`. A failed sign-in exits 1, a cancelled one 130; an
 unknown provider exits 2. See [Subscriptions](/subscriptions) for model
 configuration.
 
 | Argument or flag | Type | Default | Behavior |
 | --- | --- | --- | --- |
-| `[provider]` | `openai`, `github-copilot`, `opencode-console`, or `spacexai` | a picker | The subscription to sign in to |
+| `[provider]` | `anthropic`, `openai`, `github-copilot`, `opencode-console`, or `spacexai` | a picker | The subscription to sign in to |
 | `--device` | boolean | `false` | ChatGPT: show a code to enter on another device instead of opening a browser |
 | `--from-gh` | boolean | `false` | GitHub Copilot: reuse the token of the signed-in GitHub CLI |
 | `--client-id <id>` | string | none | GitHub Copilot: the client id of your GitHub OAuth App with the device flow enabled |
@@ -218,16 +223,19 @@ configuration.
 ```bash npm
 npx e2e logout           # pick one of the stored logins
 npx e2e logout openai    # forget one
+npx e2e-remake logout anthropic  # delegates to `claude auth logout`
 ```
 
 ```bash pnpm
 pnpm exec e2e logout           # pick one of the stored logins
 pnpm exec e2e logout openai    # forget one
+pnpm exec e2e-remake logout anthropic
 ```
 
 ```bash bun
 bunx e2e logout           # pick one of the stored logins
 bunx e2e logout openai    # forget one
+bunx e2e-remake logout anthropic
 ```
 </CodeGroup>
 
@@ -237,20 +245,26 @@ bunx e2e logout openai    # forget one
 ```bash npm
 npx e2e models           # every stored login
 npx e2e models openai    # one provider
+npx e2e-remake models anthropic  # Claude Code model aliases
 ```
 
 ```bash pnpm
 pnpm exec e2e models           # every stored login
 pnpm exec e2e models openai    # one provider
+pnpm exec e2e-remake models anthropic
 ```
 
 ```bash bun
 bunx e2e models           # every stored login
 bunx e2e models openai    # one provider
+bunx e2e-remake models anthropic
 ```
 </CodeGroup>
 
-Asks the vendor which models the stored login serves and prints one line per
+For `anthropic`, prints the aliases accepted by Claude Code and points to
+`claude --help`; actual availability belongs to the installed CLI and signed-in
+account. For other providers, asks the vendor which models the stored login
+serves and prints one line per
 model: the id `chatgpt()`, `copilot()`, `opencodeConsole()`, or `grok()`
 takes, the vendor's name for it, and its notes (reasoning levels, vision,
 preview, hidden, for Copilot `not enabled` or `no chat or responses` when
