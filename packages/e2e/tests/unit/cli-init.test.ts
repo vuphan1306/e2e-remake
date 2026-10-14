@@ -444,7 +444,7 @@ describe('e2e init', () => {
 
   it('quotes a directory the shell would otherwise split, for the platform it runs on', async () => {
     expect((await init(path.join(dir, 'apps', 'my web'), { yes: true, directory: 'apps/my web' })).exitCode).toBe(0);
-    expect(output()).toContain("Next: cd 'apps/my web', then npm install, then");
+    expect(output()).toContain(`Next: cd ${os.platform() === 'win32' ? '"apps/my web"' : "'apps/my web'"}, then npm install, then`);
     expect(existsSync(path.join(dir, 'apps', 'my web', 'e2e.config.ts'))).toBe(true);
 
     stdoutSpy.mockClear();
@@ -559,7 +559,7 @@ describe('e2e init', () => {
     expect(clack.confirm).toHaveBeenNthCalledWith(1, expect.objectContaining({ message: 'Apply these changes?' }));
     const link = path.join(dir, '.claude/skills/e2e');
     expect(lstatSync(link).isSymbolicLink()).toBe(true);
-    expect(readlinkSync(link)).toBe('../../.agents/skills/e2e');
+    expect(readlinkSync(link)).toBe(process.platform === 'win32' ? path.resolve(dir, '.agents/skills/e2e') : '../../.agents/skills/e2e');
     expect(realpathSync(link)).toBe(realpathSync(path.join(dir, '.agents/skills/e2e')));
     expect(read('.claude/skills/e2e/SKILL.md')).toBe(read('.agents/skills/e2e/SKILL.md'));
     expect(output()).toContain('Created .agents/skills/e2e/');
@@ -583,7 +583,7 @@ describe('e2e init', () => {
     expect(clack.confirm).toHaveBeenNthCalledWith(1, expect.objectContaining({ message: 'Apply these changes?' }));
     const link = path.join(dir, '.claude/skills/e2e');
     expect(lstatSync(link).isSymbolicLink()).toBe(true);
-    expect(readlinkSync(link)).toBe('../../.agents/skills/e2e');
+    expect(readlinkSync(link)).toBe(process.platform === 'win32' ? path.resolve(dir, '.agents/skills/e2e') : '../../.agents/skills/e2e');
     expect(read('.claude/skills/e2e/SKILL.md')).toMatch(/^---\nname: e2e\n/);
     expect(output()).toContain('Linked .claude/skills/e2e -> ../../.agents/skills/e2e (replaced the copy)');
     expect(output()).not.toContain('Updated .agents/skills/e2e/');
@@ -837,7 +837,7 @@ describe('e2e init', () => {
       expect(output()).toContain('  - Create .agents/skills/e2e/\n');
       expect(output()).toContain('  - Link .claude/skills/e2e -> ../../.agents/skills/e2e (replacing the symlink)\n');
       expect(clack.confirm).toHaveBeenNthCalledWith(2, expect.objectContaining({ message: 'Apply these changes?' }));
-      expect(readlinkSync(link)).toBe('../../.agents/skills/e2e');
+      expect(readlinkSync(link)).toBe(process.platform === 'win32' ? path.resolve(dir, '.agents/skills/e2e') : '../../.agents/skills/e2e');
       expect(read('.claude/skills/e2e/SKILL.md')).toMatch(/^---\nname: e2e\n/);
       expect(read('.claude/skills/e2e/references/setup.md')).toContain('# Setting up e2e');
       expect(existsSync(path.join(dir, 'gone'))).toBe(false);

@@ -22,8 +22,10 @@ describe('FileCredentialStore', () => {
     const store = new FileCredentialStore(file);
     expect(await store.get('spacexai')).toBeUndefined();
     await store.set('spacexai', creds);
-    expect(statSync(file).mode & 0o777).toBe(0o600);
-    expect(statSync(path.dirname(file)).mode & 0o777).toBe(0o700);
+    if (process.platform !== 'win32') {
+      expect(statSync(file).mode & 0o777).toBe(0o600);
+      expect(statSync(path.dirname(file)).mode & 0o777).toBe(0o700);
+    }
     expect(await store.get('spacexai')).toEqual(creds);
     expect(await store.list()).toEqual(['spacexai']);
     await store.remove('spacexai');
@@ -64,8 +66,10 @@ describe('FileCredentialStore', () => {
     writeFileSync(file, '{}', { mode: 0o644 });
     chmodSync(file, 0o644);
     await new FileCredentialStore(file).set('x', creds);
-    expect(statSync(path.dirname(file)).mode & 0o777).toBe(0o700);
-    expect(statSync(file).mode & 0o777).toBe(0o600);
+    if (process.platform !== 'win32') {
+      expect(statSync(path.dirname(file)).mode & 0o777).toBe(0o700);
+      expect(statSync(file).mode & 0o777).toBe(0o600);
+    }
   });
 
   it('takes over a stale lock left by a dead process', async () => {
@@ -90,8 +94,8 @@ describe('FileCredentialStore', () => {
   });
 
   it('defaults to the XDG config directory', () => {
-    expect(defaultCredentialsPath({ XDG_CONFIG_HOME: '/tmp/xdg' })).toBe('/tmp/xdg/e2e-remake/oauth.json');
-    expect(defaultCredentialsPath({})).toMatch(/\.config\/e2e-remake\/oauth\.json$/);
+    expect(defaultCredentialsPath({ XDG_CONFIG_HOME: '/tmp/xdg' })).toBe(path.join('/tmp/xdg', 'e2e-remake', 'oauth.json'));
+    expect(defaultCredentialsPath({})).toMatch(/\.config[\\/]e2e-remake[\\/]oauth\.json$/);
   });
 });
 
