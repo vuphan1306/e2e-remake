@@ -1,8 +1,9 @@
 {
-  "name": "e2e-monorepo",
+  "name": "e2e-remake-monorepo",
   "private": true,
-  "description": "An open framework for agentic end-to-end testing",
+  "description": "A cross-platform agentic end-to-end testing framework with Claude subscription support",
   "keywords": [
+    "e2e-remake",
     "e2e",
     "testing",
     "agentic"

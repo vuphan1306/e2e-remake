@@ -403,7 +403,7 @@ function withSubcommands(command: Command): Command[] {
 
 /** Builds the commander program. */
 function createProgram(version: string, telemetry: Telemetry): Command {
-  const program = new Command('e2e');
+  const program = new Command('e2e-remake');
   // The help option, the error hint, and the help styles are copied into each
   // subcommand as it is created, so they are set before any `.command()`.
   program

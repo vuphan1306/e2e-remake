@@ -82,7 +82,7 @@ describe('SpaceXAI login', () => {
     const result = await generateText({ model, prompt: 'hi' });
     expect(result.text).toBe('hello');
     expect(seen!.headers['authorization']).toBe('Bearer xai-tok');
-    expect(seen!.headers['user-agent']).toMatch(/^e2e\/\d+\.\d+\.\d+\S* \(\w+; \w+\)$/);
+    expect(seen!.headers['user-agent']).toMatch(/^e2e-remake\/\d+\.\d+\.\d+\S* \(\w+; \w+\)$/);
   });
 
   it('lists the language models the token reaches, with aliases and vision', async () => {

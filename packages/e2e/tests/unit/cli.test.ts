@@ -547,7 +547,7 @@ describe('e2e --version and --help', () => {
     await invoke('--help');
     const help = written(stdoutSpy);
     expect(help.startsWith(`e2e v${packageVersion} · an open framework for agentic end-to-end testing\n`)).toBe(true);
-    expect(help).toContain('Usage: e2e <command> [options]');
+    expect(help).toContain('Usage: e2e-remake <command> [options]');
     expect(help).toMatch(/^ {2}init \[options\] \[directory\] {2,}scaffold/mu);
     expect(help).toMatch(/^ {2}run \[options\] \[files\.\.\.\] {2,}run the tests$/mu);
     expect(help).toMatch(/^ {2}cache {2,}inspect, measure, and clear the replay cache$/mu);
@@ -565,7 +565,7 @@ describe('e2e --version and --help', () => {
   it('groups the run flags, then lists examples and the exit codes', async () => {
     await invoke('run', '--help');
     const help = written(stdoutSpy);
-    expect(help).toContain('Usage: e2e run [options] [files...]');
+    expect(help).toContain('Usage: e2e-remake run [options] [files...]');
     // Every flag the action reads is documented, under its group, in this order.
     const headings = [...help.matchAll(/^(\S[^\n]*):$/gmu)].map((match) => match[1]);
     expect(headings).toEqual(['Arguments', 'Selection', 'Execution', 'Output', 'Options', 'Examples', 'Exit codes']);
@@ -626,7 +626,7 @@ describe('e2e --version and --help', () => {
     await invoke();
     expect(stdoutSpy).not.toHaveBeenCalled();
     const help = written(stderrSpy);
-    expect(help).toContain('Usage: e2e <command> [options]');
+    expect(help).toContain('Usage: e2e-remake <command> [options]');
     expect(help).toContain('Examples:');
     expect(process.exitCode).toBe(2);
     expect(runMock).not.toHaveBeenCalled();

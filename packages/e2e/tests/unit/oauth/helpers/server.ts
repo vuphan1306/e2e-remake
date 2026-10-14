@@ -88,7 +88,7 @@ const realFetch = globalThis.fetch;
 
 /**
  * Puts a local server in a vendor's place for a constructor test: `logins`
- * is what `E2E_OAUTH_CREDENTIALS` supplies, and every request the process
+ * is what `E2E_REMAKE_OAUTH_CREDENTIALS` supplies, and every request the process
  * sends reaches `vendor` with its path and query kept, whatever host it
  * named. Both stand-ins are undone after each test.
  */

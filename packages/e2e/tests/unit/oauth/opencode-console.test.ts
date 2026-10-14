@@ -142,7 +142,7 @@ describe('opencodeConsole()', () => {
     expect(call!.headers['x-opencode-org-id']).toBe('org_1');
     expect(call!.headers['x-opencode-session']).toMatch(/^e2e_[0-9a-f-]{36}$/);
     expect(call!.headers).not.toHaveProperty('x-api-key');
-    expect(call!.headers['user-agent']).toMatch(/^e2e\/\d+\.\d+\.\d+\S* \(\w+; \w+\)$/);
+    expect(call!.headers['user-agent']).toMatch(/^e2e-remake\/\d+\.\d+\.\d+\S* \(\w+; \w+\)$/);
     expect(JSON.parse(call!.body)).toMatchObject({ model: 'claude-sonnet-5' });
     expect([model.provider, model.modelId]).toEqual(['opencode', 'claude-sonnet-5']);
   });

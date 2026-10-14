@@ -1,6 +1,6 @@
 /**
  * An expired sign-in names the login command, through the constructors a
- * config calls: the login comes from `E2E_OAUTH_CREDENTIALS` and the vendor's
+ * config calls: the login comes from `E2E_REMAKE_OAUTH_CREDENTIALS` and the vendor's
  * token endpoint is a local server that rejects the refresh for good.
  */
 

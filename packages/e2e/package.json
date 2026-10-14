@@ -1,8 +1,9 @@
 {
   "name": "e2e",
   "version": "0.20.0",
-  "description": "SDK, runner, and CLI for agentic end-to-end testing",
+  "description": "Cross-platform agentic end-to-end testing with Claude subscription support",
   "keywords": [
+    "e2e-remake",
     "e2e",
     "end-to-end",
     "testing",
@@ -73,6 +74,7 @@
     }
   },
   "bin": {
+    "e2e-remake": "./dist/cli/bin.js",
     "e2e": "./dist/cli/bin.js"
   },
   "files": [

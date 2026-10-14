@@ -2,7 +2,7 @@
  * Credentials between runs: one JSON file keyed by provider id, mode 0600.
  * Writes hold an advisory lock and replace the file atomically, so two runs
  * refreshing at once neither tear the file nor lose each other's entries.
- * `E2E_OAUTH_CREDENTIALS` holding the same JSON stands in for the file on a
+ * `E2E_REMAKE_OAUTH_CREDENTIALS` holding the same JSON stands in for the file on a
  * machine the user cannot sign in on; that store refuses to write.
  */
 
@@ -12,20 +12,21 @@ import path from 'node:path';
 import { OAuthError } from './errors.ts';
 import type { CredentialStore, OAuthCredentials } from './types.ts';
 
-export const CREDENTIALS_ENV = 'E2E_OAUTH_CREDENTIALS';
+export const CREDENTIALS_ENV = 'E2E_REMAKE_OAUTH_CREDENTIALS';
+const LEGACY_CREDENTIALS_ENV = 'E2E_OAUTH_CREDENTIALS';
 
 type CredentialsFile = Record<string, OAuthCredentials>;
 
-/** `$XDG_CONFIG_HOME/e2e/oauth.json`, or `~/.config/e2e/oauth.json`. */
+/** `$XDG_CONFIG_HOME/e2e-remake/oauth.json`, or `~/.config/e2e-remake/oauth.json`. */
 export function defaultCredentialsPath(env: NodeJS.ProcessEnv = process.env): string {
   const configHome = env['XDG_CONFIG_HOME'];
   const base = configHome !== undefined && configHome !== '' ? configHome : path.join(homedir(), '.config');
-  return path.join(base, 'e2e', 'oauth.json');
+  return path.join(base, 'e2e-remake', 'oauth.json');
 }
 
 /** The store the model constructors and the CLI use: the environment variable when set, else the file. */
 export function defaultCredentialStore(env: NodeJS.ProcessEnv = process.env): CredentialStore {
-  const fromEnv = env[CREDENTIALS_ENV];
+  const fromEnv = env[CREDENTIALS_ENV] ?? env[LEGACY_CREDENTIALS_ENV];
   return fromEnv !== undefined && fromEnv !== '' ? new EnvCredentialStore(fromEnv) : new FileCredentialStore(defaultCredentialsPath(env));
 }
 

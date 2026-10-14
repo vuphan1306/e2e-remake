@@ -53,7 +53,7 @@ function written(spy: ReturnType<typeof vi.spyOn>): string {
 
 /** The logins the file store holds after a command, or undefined when it wrote none. */
 function stored(): unknown {
-  const file = path.join(configHome, 'e2e', 'oauth.json');
+  const file = path.join(configHome, 'e2e-remake', 'oauth.json');
   return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined;
 }
 
@@ -65,7 +65,7 @@ beforeEach(() => {
   configHome = mkdtempSync(path.join(os.tmpdir(), 'e2e-login-'));
   // The file store under a throwaway config home: never the developer's own login file, nor the read-only environment store.
   vi.stubEnv('XDG_CONFIG_HOME', configHome);
-  vi.stubEnv('E2E_OAUTH_CREDENTIALS', '');
+  vi.stubEnv('E2E_REMAKE_OAUTH_CREDENTIALS', '');
   doubles.set('openai', flowDouble('openai'));
   doubles.set('github-copilot', flowDouble('github-copilot'));
   received.length = 0;

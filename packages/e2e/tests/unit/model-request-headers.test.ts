@@ -75,12 +75,12 @@ function chatModel() {
 function expectIdentified(headers: IncomingHttpHeaders | undefined) {
   expect(headers?.['user-agent']?.startsWith(`${USER_AGENT} `)).toBe(true);
   expect(headers?.['user-agent']).toContain(' ai/');
-  expect(headers?.['http-referer']).toBe('https://tester.army/e2e');
-  expect(headers?.['x-title']).toBe('e2e');
+  expect(headers?.['http-referer']).toBe('https://github.com/tester-army/e2e');
+  expect(headers?.['x-title']).toBe('e2e-remake');
 }
 
 describe('model request headers', () => {
-  it('identifies e2e on a judgment call, ahead of the AI SDK user agent', async () => {
+  it('identifies e2e-remake on a judgment call, ahead of the AI SDK user agent', async () => {
     const model = chatModel();
     const adapter = createModelAdapter({ provider: model.provider, id: model.modelId, model });
 
@@ -100,7 +100,7 @@ describe('model request headers', () => {
     expectIdentified(received[0]);
   });
 
-  it('identifies e2e on every turn of an act loop', async () => {
+  it('identifies e2e-remake on every turn of an act loop', async () => {
     const engine = defineEngine({ name: 'fake', version: '1', spiVersion: 1, observe: async () => snapshot([]) });
     const config = resolveConfig(
       { targets: [{ name: 'fake', platform: 'custom', engine }], cache: 'off', agents: { default: { model: chatModel(), tools: { peek } } } },
