@@ -18,7 +18,14 @@ export interface StackFrame {
 /** A position the report keeps: the file relative to the project root, POSIX separators, one-based line and column. */
 export type SourceLocation = StackFrame;
 
-const FRAME_PATTERN = /((?:file:\/\/)?\/[^):]+):(\d+):(\d+)\)?\s*$/;
+/**
+ * A stack frame's location: a POSIX path, a Windows path (`C:\\x` or `C:/x`),
+ * or a file URL of either (`file:///C:/x`), then `:line:column`.
+ */
+const FRAME_PATTERN = /((?:file:\/\/)?(?:\/?[A-Za-z]:)?[\\/][^():]*):(\d+):(\d+)\)?\s*$/;
+
+/** A `node_modules` directory segment, with either separator: Windows frames can carry both. */
+const NODE_MODULES_SEGMENT = /[\\/]node_modules[\\/]/;
 
 /**
  * `file` relative to `projectRoot` with POSIX separators, or nothing when the
@@ -55,7 +62,7 @@ export function userFrame(stack: string | undefined, projectRoot: string | undef
       continue;
     }
     if (projectRelativePath(projectRoot, file) === undefined) continue;
-    if (file.includes(`${path.sep}node_modules${path.sep}`)) continue;
+    if (NODE_MODULES_SEGMENT.test(file)) continue;
     return { file, line: Number(line), column: Number(column) };
   }
   return undefined;

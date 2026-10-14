@@ -512,7 +512,9 @@ function stackLocations(): SourceLocation[] {
     const match = STACK_FRAME.exec(line.trim());
     if (match === null) return [];
     // An ES module names itself by URL, the loader's cache-busting query included; a mapped frame or CommonJS by path.
-    const file = match[1]!.startsWith('file:') ? fileURLToPath(match[1]!) : match[1]!;
+    // A mapped frame on Windows can spell its path with `/` (`C:/repo/src/x.ts`); normalize so it compares with
+    // RUNNER_ROOTS and the module file, which use the platform separator.
+    const file = match[1]!.startsWith('file:') ? fileURLToPath(match[1]!) : path.normalize(match[1]!);
     return [{ file, line: Number(match[2]), column: Number(match[3]) }];
   });
 }
