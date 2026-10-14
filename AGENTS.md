@@ -528,7 +528,13 @@ trees, on both platforms, without a device.
     enqueueing (auto-merge included) is the trust decision: review a fork's
     test, config, and engine changes before you enqueue it.
 
-- CI: `.github/workflows/spec.yml` runs lint, typecheck, and the testbed on
+- CI in e2e-remake: `.github/workflows/ci.yml` is the only workflow. It runs
+  lint, `pnpm typecheck`, the `e2e` unit tests, and the script tests on
+  ubuntu-latest and windows-latest for pushes to main and pull requests.
+  Upstream's workflows, `filters.yml`, `dependabot.yml`, and `CODEOWNERS`
+  were removed; the next bullet describes upstream's CI for reference only.
+
+- Upstream CI: `.github/workflows/spec.yml` runs lint, typecheck, and the testbed on
   Node 26, `pnpm test` on the newest Node 22, 24, and 26 and on the
   `engines.node` floors (22.22.3, 24.8.0), and `scripts/install-smoke.ts`, a
   fresh install of the packed packages with pnpm 11 and 12; `benchmark.yml` runs the
