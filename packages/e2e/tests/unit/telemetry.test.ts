@@ -28,8 +28,9 @@ function unwritableDir(): string {
   return path.join(blocker, 'e2e');
 }
 
+// maxRetries: on Windows a just-exited child or a scanner can hold a file for a moment (EPERM, EBUSY).
 afterEach(() => {
-  for (const dir of temporaries.splice(0)) rmSync(dir, { recursive: true, force: true });
+  for (const dir of temporaries.splice(0)) rmSync(dir, { recursive: true, force: true, maxRetries: 5 });
 });
 
 interface SentBatch {

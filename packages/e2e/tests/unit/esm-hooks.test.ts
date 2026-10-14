@@ -6,6 +6,9 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { load, resolve } from '../../src/config/esm-hooks.ts';
 
+/** These tests feed the hooks POSIX file URLs (`file:///app/...`) and compare `/`-separated paths, which have no drive on Windows. Linux CI covers them; skipped on Windows. */
+const POSIX_FIXTURES_ON_WINDOWS = process.platform === 'win32';
+
 type Resolution = { url: string; format?: string | null | undefined };
 
 const IMPORT = ['node', 'import'];
@@ -134,7 +137,7 @@ describe('resolve', () => {
     expect(resolveFrom(url('tests/example.e2e.ts'), '../lib/helper?v=1#x').asked).toEqual([`${url('lib/helper.ts')}?v=1#x`]);
   });
 
-  it.each([
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS).each([
     ['an extensionless import', './helper', 'lib/helper.ts'],
     ['./x.js to x.ts', './helper.js', 'lib/helper.ts'],
     ['a tsconfig paths alias', '@lib/helper', 'lib/helper.ts'],
@@ -176,7 +179,7 @@ describe('resolve', () => {
     expect(() => resolveFrom(url(parent), specifier, { exports })).toThrow('Cannot find module');
   });
 
-  it.each([
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS).each([
     ['a file that exists as written', 'tests/example.e2e.ts', '../lib/only.js'],
     ['a # import', 'tests/example.e2e.ts', '#lib/helper'],
     ['a builtin a paths pattern could match', 'tests/example.e2e.ts', 'node:fs'],
@@ -185,7 +188,7 @@ describe('resolve', () => {
     expect(resolveFrom(url(parent), specifier, { exports: { '#lib/helper': 'file:///app/lib/helper.ts' } }).asked).toEqual([specifier]);
   });
 
-  it('gives an installed package TypeScript resolution but not the project tsconfig', () => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('gives an installed package TypeScript resolution but not the project tsconfig', () => {
     expect(resolveFrom(url('node_modules/dep/index.ts'), './helper').asked).toEqual([url('node_modules/dep/helper.ts')]);
     expect(resolveFrom(url('node_modules/dep/index.ts'), '@lib/helper', { exports: { '@lib/helper': 'file:///app/elsewhere.js' } }).asked).toEqual([
       '@lib/helper',
@@ -212,7 +215,7 @@ describe('resolve', () => {
     expect(resolveFrom(undefined, specifier, { format }).resolution).toEqual({ url: specifier, format });
   });
 
-  it.each(['tests/plain.js', 'tests/example.e2e.ts'])('leaves an @oxc-project/runtime import %s writes to the project', (parent) => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS).each(['tests/plain.js', 'tests/example.e2e.ts'])('leaves an @oxc-project/runtime import %s writes to the project', (parent) => {
     const exports = { '@oxc-project/runtime/helpers/decorate': 'file:///app/node_modules/@oxc-project/runtime/decorate.js' };
     expect(resolveFrom(url(parent), '@oxc-project/runtime/helpers/decorate', { exports }).asked).toEqual(['@oxc-project/runtime/helpers/decorate']);
   });
@@ -234,7 +237,7 @@ describe('fresh module graphs', () => {
     expect(resolveFrom(fromGraph('e2e.config.ts'), '#sub', { exports }).resolution.url).toBe(`${url('internal/sub.ts')}?v=1&e2e-graph=module-3`);
   });
 
-  it.each([
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS).each([
     ['a package by name', fromGraph('e2e.config.ts'), '@e2e-dev/web', { '@e2e-dev/web': 'file:///app/packages/web/dist/index.js' }],
     ['a file under node_modules', `${url('node_modules/dep/index.ts')}?e2e-graph=module-3`, './helper.ts', {}],
     ['an importer outside any graph', `${url('e2e.config.ts')}?e2e=module-1`, './lib/helper.ts', {}],
@@ -258,7 +261,7 @@ describe('fresh module graphs', () => {
     expect(resolveFrom(url('vite/src/main.ts'), '@/util').asked).toEqual([url('vite/src/util.ts')]);
   });
 
-  it('warns once about a tsconfig.json it cannot read and resolves without it', () => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('warns once about a tsconfig.json it cannot read and resolves without it', () => {
     write({ 'broken/tsconfig.json': JSON.stringify({ extends: '@tsconfig/not-installed/tsconfig.json', compilerOptions: { paths: { '@x': ['./x.ts'] } } }), 'broken/main.ts': '', 'broken/x.ts': '' });
     const warnings: string[] = [];
     const emitWarning = vi.spyOn(process, 'emitWarning').mockImplementation((warning) => {

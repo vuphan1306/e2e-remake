@@ -4,12 +4,15 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ProjectView } from '../../src/config/tsconfig.ts';
+
+/** This test compares tsconfig `paths` results, which keep `/` separators, with `path.join`. Linux CI covers them; skipped on Windows. */
+const POSIX_FIXTURES_ON_WINDOWS = process.platform === 'win32';
 let root: string;
 beforeEach(() => { root = mkdtempSync(path.join(tmpdir(), 'e2e-project-references-')); });
 afterEach(() => { rmSync(root, { recursive: true, force: true }); });
 function write(file: string, content: object): void { const target = path.join(root, file); mkdirSync(path.dirname(target), { recursive: true }); writeFileSync(target, JSON.stringify(content)); }
 describe('nested solution references', () => {
-  it('uses a transitively referenced project’s alias settings', () => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('uses a transitively referenced project’s alias settings', () => {
     write('tsconfig.json', { files: [], references: [{ path: 'configs/solution.json' }] });
     write('configs/solution.json', { files: [], references: [{ path: 'app.json' }] });
     write('configs/app.json', { compilerOptions: { baseUrl: '..', paths: { '@lib/*': ['lib/*'] } }, include: ['../tests/*.ts'] });

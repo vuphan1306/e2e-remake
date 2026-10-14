@@ -2,7 +2,6 @@
 
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 
 /** Runs git in `cwd` with the user's config shut out, returning trimmed stdout. */
@@ -12,7 +11,8 @@ export function runGit(cwd: string, ...args: string[]): string {
     encoding: 'utf8',
     env: {
       ...process.env,
-      GIT_CONFIG_GLOBAL: os.devNull,
+      // Git for Windows opens the literal `/dev/null` but not os.devNull (`\\.\nul`).
+      GIT_CONFIG_GLOBAL: '/dev/null',
       GIT_CONFIG_NOSYSTEM: '1',
       GIT_AUTHOR_NAME: 'e2e',
       GIT_AUTHOR_EMAIL: 'e2e@example.test',

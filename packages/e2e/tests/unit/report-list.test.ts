@@ -9,6 +9,9 @@ import { userFrame } from '../../src/report/code-frame.ts';
 import type { RunEventFact, RunEventOf, RunEventResult } from '../../src/run/events.ts';
 import type { ResultStatus, AttemptRecord, SerialGroupRecord, SerialMemberRecord } from '../../src/run/records.ts';
 
+/** These tests compare against output and stacks written with POSIX paths (`/project`, `file://${root}`). Linux CI covers them; skipped on Windows. */
+const POSIX_FIXTURES_ON_WINDOWS = process.platform === 'win32';
+
 // eslint-disable-next-line no-control-regex
 const ANSI_PATTERN = /\u001b\[[0-9;?]*[a-zA-Z]/g;
 
@@ -383,7 +386,7 @@ describe('ListReporter', () => {
   });
 
   describe('failed tests section', () => {
-    it('lists a retry that skipped with the failed attempt’s error and evidence', () => {
+    it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('lists a retry that skipped with the failed attempt’s error and evidence', () => {
       const { lines, output } = capture();
       const reporter = plainReporter(output);
       reporter.handle(runStarted());
@@ -443,7 +446,7 @@ describe('ListReporter', () => {
       });
     });
 
-    it('resolves file URLs and strips module-cache query strings', () => {
+    it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('resolves file URLs and strips module-cache query strings', () => {
       const stack = `    at async Object.fn (file://${root}/tests/login.e2e.ts?worker-collect-1:7:3)`;
       expect(userFrame(stack, root)).toEqual({
         file: `${root}/tests/login.e2e.ts`,
@@ -741,7 +744,7 @@ describe('ListReporter', () => {
       expect(lines).toContain('     → no browser');
     });
 
-    it('names the group recording under a failed member, since members carry no attempts', () => {
+    it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('names the group recording under a failed member, since members carry no attempts', () => {
       const { lines, output } = capture();
       const reporter = plainReporter(output);
       reporter.handle(runStarted());
@@ -1405,7 +1408,7 @@ describe('ListReporter goldens', () => {
   /** A step event for test `testId` on chromium. */
   const step = (testId: string, progress: RunEventOf<'step'>['progress']): RunEventFact => ({ type: 'step', testId, agent: 'default', repeat: 0, target: 'chromium', progress });
 
-  it('prints a passing run: header with agents, model, and CI, a ready service, file blocks, usage, cache, and the summary', () => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('prints a passing run: header with agents, model, and CI, a ready service, file blocks, usage, cache, and the summary', () => {
     const { lines, output } = capture();
     const reporter = plainReporter(output);
     reporter.handle({ ...(runStarted({ targets: ['chromium', 'firefox'], ci: true, model: 'openai/gpt-5.6-luna-fast' }) as RunEventOf<'run-started'>), agents: ['buyer', 'admin'] });
@@ -1428,7 +1431,7 @@ describe('ListReporter goldens', () => {
     expectGolden('list-pass.txt', stable(lines.join('\n')));
   });
 
-  it('prints a failing run: failed, timed-out, interrupted, skipped, and flaky results, then each failure with its code frame and evidence', () => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('prints a failing run: failed, timed-out, interrupted, skipped, and flaky results, then each failure with its code frame and evidence', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'e2e-list-golden-'));
     try {
       const source = path.join(root, 'tests', 'login.e2e.ts');
@@ -1644,7 +1647,7 @@ describe('explore runs', () => {
   describe('golden', () => {
     useGoldenTerminal();
 
-    it('without a live window, streams the header, each finding, and each step as they happen, then the findings with their evidence', () => {
+    it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('without a live window, streams the header, each finding, and each step as they happen, then the findings with their evidence', () => {
       const { lines, output } = capture();
       play(plainReporter(output));
       expectGolden('list-explore.txt', stable(lines.join('\n')));

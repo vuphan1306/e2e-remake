@@ -9,6 +9,9 @@ import { InfrastructureError } from '../../src/internal/errors.ts';
 import { ManagedProcess } from '../../src/run/managed-process.ts';
 import type { CommandConfig } from '../../src/types.ts';
 
+/** This test relies on a log path POSIX refuses to open, which Windows can create. Linux CI covers them; skipped on Windows. */
+const POSIX_FIXTURES_ON_WINDOWS = process.platform === 'win32';
+
 describe('ManagedProcess', () => {
   it.each(['preflight', 'startup'] as const)('cancels an in-flight %s readiness probe', async (phase) => {
     let probing!: () => void;
@@ -116,7 +119,7 @@ describe('ManagedProcess log', () => {
     expect(fs.existsSync(path.join(dir, '.e2e', 'logs', 'nested', 'app.log'))).toBe(true);
   });
 
-  it('fails with APP_UNREACHABLE when the log path cannot be opened', async () => {
+  it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('fails with APP_UNREACHABLE when the log path cannot be opened', async () => {
     fs.mkdirSync(path.join(dir, 'app.log'));
     const failure = await step('app.log')
       .start()

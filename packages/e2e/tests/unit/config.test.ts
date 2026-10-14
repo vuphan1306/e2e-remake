@@ -10,6 +10,9 @@ import type { CommandConfig, E2EConfig, Target, TargetApp } from '../../src/type
 import { snapshot } from '../helpers/snapshot.ts';
 import { invalid } from '../helpers/invalid.ts';
 
+/** These tests expect messages that spell paths with `/`. Linux CI covers them; skipped on Windows. */
+const POSIX_FIXTURES_ON_WINDOWS = process.platform === 'win32';
+
 const ROOT = '/tmp/e2e-config-project';
 const BASE_ENV = {} as NodeJS.ProcessEnv;
 const WEB = { name: 'web', platform: 'web' } as const;
@@ -1001,7 +1004,7 @@ describe('resolveConfig', () => {
       expect(resolve({ output: 'results' }).configDigest).toBe(resolve({}).configDigest);
     });
 
-    it('refuses a directory the run cannot own, with the reason', () => {
+    it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('refuses a directory the run cannot own, with the reason', () => {
       expect(refusal({ output: '' })).toBe('output must be a non-empty path relative to the project root, got ""');
       expect(refusal({ output: 5 as never })).toContain('output must be a non-empty path');
       expect(refusal({ output: '.' })).toContain('output "." is the project root');
@@ -1023,7 +1026,7 @@ describe('resolveConfig', () => {
       expect(refusal({ tests: '.e2e/**/*.e2e.ts' })).toContain('output ".e2e" (the default) holds .e2e,');
     });
 
-    it('compares paths through symlinks, so one directory spelled two ways is one directory', () => {
+    it.skipIf(POSIX_FIXTURES_ON_WINDOWS)('compares paths through symlinks, so one directory spelled two ways is one directory', () => {
       const base = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'e2e-output-')));
       const real = path.join(base, 'real');
       const link = path.join(base, 'link');
