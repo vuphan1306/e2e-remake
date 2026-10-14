@@ -988,13 +988,13 @@ describe('resolveConfig', () => {
     };
 
     it('defaults to .e2e, resolves from the project root, and --output wins over the config', () => {
-      expect(resolve({}).output).toBe(path.join(ROOT, '.e2e'));
-      expect(resolve({ output: 'results/e2e' }).output).toBe(path.join(ROOT, 'results', 'e2e'));
+      expect(resolve({}).output).toBe(path.resolve(ROOT, '.e2e'));
+      expect(resolve({ output: 'results/e2e' }).output).toBe(path.resolve(ROOT, 'results', 'e2e'));
       expect(resolveConfig({ targets: TARGETS, output: 'results' }, { projectRoot: ROOT, env: BASE_ENV, cli: { output: 'out' } }).output).toBe(
-        path.join(ROOT, 'out'),
+        path.resolve(ROOT, 'out'),
       );
       // The default cache sits inside the default output, outside anything a run clears.
-      expect(resolve({}).cache.dir).toBe(path.join(ROOT, '.e2e', 'cache'));
+      expect(resolve({}).cache.dir).toBe(path.resolve(ROOT, '.e2e', 'cache'));
     });
 
     it('stays out of the digest', () => {
@@ -1077,9 +1077,9 @@ describe('resolveConfig', () => {
     });
 
     it('accepts an output beside the tests, or inside a glob rooted higher up', () => {
-      expect(resolve({ output: 'results', tests: ['tests/**/*.e2e.ts', '!results/**'] }).output).toBe(path.join(ROOT, 'results'));
-      expect(resolve({ output: 'results', tests: '**/*.e2e.ts' }).output).toBe(path.join(ROOT, 'results'));
-      expect(resolve({ output: 'out', cache: { dir: 'out/replays' } }).cache.dir).toBe(path.join(ROOT, 'out', 'replays'));
+      expect(resolve({ output: 'results', tests: ['tests/**/*.e2e.ts', '!results/**'] }).output).toBe(path.resolve(ROOT, 'results'));
+      expect(resolve({ output: 'results', tests: '**/*.e2e.ts' }).output).toBe(path.resolve(ROOT, 'results'));
+      expect(resolve({ output: 'out', cache: { dir: 'out/replays' } }).cache.dir).toBe(path.resolve(ROOT, 'out', 'replays'));
     });
   });
 });

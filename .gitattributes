@@ -1,0 +1,9 @@
+# Check text files out with LF on every platform. Without this, Git for Windows
+# (core.autocrlf=true, the default on GitHub's Windows runners) converts them to
+# CRLF: the agent skill e2e init copies and the package ships would then differ
+# by platform, and tests that read them expect LF.
+* text=auto eol=lf
+
+# Windows batch files need CRLF to run.
+*.bat text eol=crlf
+*.cmd text eol=crlf
