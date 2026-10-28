@@ -6,7 +6,8 @@
  * an npm alias, `"e2e": "npm:@vuphan1306/e2e@^<version>"`, which `e2e init`
  * writes. The workspace keeps the name `e2e` so its self-references and the
  * engines' `e2e` peer resolve; this script swaps the name in for the one pack
- * and restores the manifest afterwards, whatever happens.
+ * and restores the manifest afterwards, Ctrl+C included (a SIGKILL cannot be
+ * caught; `git checkout -- package.json` then puts it back).
  *
  * Usage, from the package directory after `pnpm run build`:
  *   node scripts/release-fork.ts pack       # tarball in ../../artifacts/
@@ -34,6 +35,10 @@ const check = spawnSync(process.execPath, ['../../scripts/check-dist.ts'], { std
 if (check.status !== 0) process.exit(check.status ?? 1);
 
 const args = mode === 'pack' ? ['pack', '--pack-destination', '../../artifacts', ...rest] : ['publish', '--no-git-checks', ...rest];
+// Ctrl+C at npm's OTP prompt reaches pnpm through the terminal's process group.
+// Without a handler Node would die here at once and skip the restore below;
+// with one, the signal waits for pnpm to exit and the finally block runs.
+for (const signal of ['SIGINT', 'SIGTERM'] as const) process.on(signal, () => {});
 let status = 1;
 try {
   writeFileSync('package.json', `${JSON.stringify({ ...manifest, name: manifest.publishName }, null, 2)}\n`);

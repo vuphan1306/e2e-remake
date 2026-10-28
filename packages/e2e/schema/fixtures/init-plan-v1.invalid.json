@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "C:\\project\\e2e.config.ts",
+      "action": "overwrite",
+      "sha256": "not-a-digest",
+      "content": "export default {};\n"
+    }
+  ],
+  "skills": [{ "path": ".claude/skills/e2e", "action": "link", "files": 12 }],
+  "warnings": [],
+  "untouched": [],
+  "dependencies": [["e2e"]],
+  "scripts": [],
+  "install": "npm install",
+  "next": []
+}

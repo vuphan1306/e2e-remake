@@ -50,7 +50,8 @@ export interface SessionEnd {
 }
 
 /**
- * How `e2e init` ended. `scaffolded` wrote files, `already-initialized` found
+ * How `e2e init` ended. `scaffolded` wrote files, `planned` printed the
+ * `--plan` JSON and wrote nothing, `already-initialized` found
  * nothing to write, `cancelled` stopped at a prompt, `install-failed` wrote
  * the files but the package manager failed, `not-interactive` had prompts and
  * no terminal, `invalid-project` could not start (a file for a directory, an

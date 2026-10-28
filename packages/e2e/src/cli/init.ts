@@ -24,7 +24,7 @@ import { isLoopbackHost } from '../internal/urls.ts';
 import { getEnginePresets, DEFAULT_ENGINE_ID, type EngineId } from './init/engines.ts';
 import { GATEWAYS, getGatewayPreset, type GatewayId } from './init/gateways.ts';
 import { findRegisteredMcpFiles, MCP_LOCATIONS, planMcpRegistration } from './init/mcp-config.ts';
-import { addDependencies, addScripts, describeManifestError, readPackage, serializePackage } from './init/package.ts';
+import { addDependencies, addScripts, declaredDependency, describeManifestError, readPackage, serializePackage } from './init/package.ts';
 import { createScaffold, type ScaffoldModel } from './init/scaffold.ts';
 import { MISSING_SKILL_MESSAGE, readSkillFiles } from './skill.ts';
 import { playWordmark } from './wordmark.ts';
@@ -77,7 +77,9 @@ interface PlannedFile {
 interface InitPlan {
   readonly version: 1;
   readonly files: readonly PlannedFile[];
-  readonly skills: readonly { readonly path: string; readonly action: 'create' | 'update' | 'replace' | 'link'; readonly target?: string; readonly files?: number }[];
+  readonly skills: readonly { readonly path: string; readonly action: 'create' | 'update' | 'link'; readonly target?: string; readonly files?: number }[];
+  /** What init warned about: files left alone, links not written through, a runner that is not this fork. */
+  readonly warnings: readonly string[];
   /** Existing files init leaves alone. */
   readonly untouched: readonly string[];
   readonly dependencies: readonly (readonly [string, string])[];
@@ -98,16 +100,23 @@ interface InitUi {
   };
 }
 
-const toStderr = (message: string): void => {
-  process.stderr.write(`${message}\n`);
-};
-
-/** Under `--plan`: warnings and errors on stderr, progress nowhere. */
-const QUIET_UI: InitUi = {
-  intro: () => {},
-  outro: () => {},
-  log: { info: () => {}, success: () => {}, warn: toStderr, error: toStderr },
-};
+/** Under `--plan`: warnings into the plan, errors on stderr, progress nowhere. */
+function quietUi(warnings: string[]): InitUi {
+  return {
+    intro: () => {},
+    outro: () => {},
+    log: {
+      info: () => {},
+      success: () => {},
+      warn: (message) => {
+        warnings.push(message);
+      },
+      error: (message) => {
+        process.stderr.write(`${message}\n`);
+      },
+    },
+  };
+}
 
 const CACHE_IGNORE_ENTRY = '.e2e/cache/';
 
@@ -123,6 +132,9 @@ const GITIGNORE_ENTRIES = [
   '.e2e/logs/',
   '.e2e/videos/',
 ];
+
+/** Package-manager commands that Windows installs as `.cmd` shims, which `spawn` without a shell cannot start. */
+const WINDOWS_SHIMS = new Set(['npm', 'npx', 'pnpm', 'yarn', 'bun', 'bunx']);
 
 const RUN_SCRIPT = 'test:e2e';
 const SCRIPTS = { [RUN_SCRIPT]: 'e2e run' };
@@ -141,7 +153,8 @@ type GatewayChoice = GatewayId | 'none';
  */
 export async function init(cwd: string, options: InitOptions = {}): Promise<InitOutcome & { readonly exitCode: number }> {
   const yes = options.yes === true || options.plan === true;
-  const ui: InitUi = options.plan === true ? QUIET_UI : clack;
+  const warnings: string[] = [];
+  const ui: InitUi = options.plan === true ? quietUi(warnings) : clack;
   // The wordmark drops in above the wizard, at rest when --yes asked for no questions; a terminal is the one place it shows.
   if (options.interactive !== false && options.plan !== true) await playWordmark(process.stdout, { motion: !yes });
   ui.intro(options.directory === undefined ? 'e2e init' : `e2e init ${options.directory}`);
@@ -290,6 +303,14 @@ export async function init(cwd: string, options: InitOptions = {}): Promise<Init
     ...(options.appCommand === undefined ? {} : { command: options.appCommand }),
   });
   const dependencies = addDependencies(pkg.manifest, scaffold.dependencies);
+  const staleRunner = upstreamRunner(declaredDependency(pkg.manifest, 'e2e'), scaffold.dependencies.e2e);
+  if (staleRunner !== undefined) ui.log.warn(staleRunner);
+  const shim = options.appCommand?.[0];
+  if (shim !== undefined && os.platform() === 'win32' && WINDOWS_SHIMS.has(shim)) {
+    ui.log.warn(
+      `On Windows the runner starts app.command without a shell, and ${shim} is a .cmd shim it cannot start; start the dev server before e2e run, and reuseExisting uses it`,
+    );
+  }
   const { manifest, additions: scripts } = addScripts(dependencies.manifest, SCRIPTS);
   if (dependencies.additions.length > 0) {
     ui.log.info(`Add dev dependencies: ${dependencies.additions.map(([name, version]) => `${name}@${version}`).join(', ')}`);
@@ -339,7 +360,9 @@ export async function init(cwd: string, options: InitOptions = {}): Promise<Init
       ],
       skills: skillInstalls.map((install) => install.kind === 'link'
         ? { path: install.relative, action: 'link', target: install.target }
-        : { path: install.relative, action: install.links.length > 0 ? 'replace' : install.existing ? 'update' : 'create', files: install.files.length }),
+        // --plan implies --yes, which never replaces a symlink, so a copy is only ever created or updated.
+        : { path: install.relative, action: install.existing ? 'update' : 'create', files: install.files.length }),
+      warnings,
       untouched: [...(existingConfig === undefined ? [] : [existingConfig]), ...(exampleExists ? [examplePath] : [])],
       dependencies: dependencies.additions,
       scripts,
@@ -454,6 +477,19 @@ function gatewayModel(gateway: GatewayChoice, endpoint: string | undefined): Sca
   return gateway === 'openai-compatible' && endpoint !== undefined ? { gateway, endpoint } : { gateway };
 }
 
+/**
+ * The warning for a project whose `e2e` dependency is not this fork's alias:
+ * init keeps an existing dependency, so a project on upstream's unscoped `e2e`
+ * would get a config importing `e2e/oauth/claude`, which upstream lacks.
+ * Local specs (`workspace:`, `file:`, `link:`) are the user's own build.
+ */
+function upstreamRunner(declared: string | undefined, wanted: string | undefined): string | undefined {
+  if (declared === undefined || wanted === undefined || !wanted.startsWith('npm:')) return undefined;
+  const alias = wanted.slice(0, wanted.lastIndexOf('@') + 1);
+  if (declared.startsWith(alias) || /^(?:workspace|file|link):/u.test(declared)) return undefined;
+  return `package.json declares e2e as ${declared}, not this fork; e2e/oauth/claude and these init flags need "e2e": "${wanted}"`;
+}
+
 /** One `--plan` file entry; the digest is of the UTF-8 bytes init would write. */
 function plannedFile(relative: string, existing: boolean, content: string): PlannedFile {
   return {
@@ -515,7 +551,7 @@ function linkReplaces(install: SkillInstall, verb: 'replacing' | 'replaced'): st
  * locations an earlier run chose, refreshed and never extended; for a project
  * without one, every known location under `--yes`, else the user's pick.
  * `--no-skill` / `--no-mcp` (`choice` false) skips it, refreshes included;
- * `--skill` / `--mcp` (true) answers the question with every location.
+ * `--skill` / `--mcp` (true) takes every location, adding to an earlier pick.
  */
 async function chooseLocations(
   found: readonly string[],
@@ -525,8 +561,9 @@ async function chooseLocations(
   choice: boolean | undefined,
 ): Promise<readonly string[] | symbol> {
   if (choice === false) return [];
+  if (choice === true) return locations.map((location) => location.value);
   if (found.length > 0) return found;
-  if (yes || choice === true) return locations.map((location) => location.value);
+  if (yes) return locations.map((location) => location.value);
   return clack.multiselect<string>({
     message,
     options: locations.map(({ value, hint }) => ({ value, label: value, hint })),

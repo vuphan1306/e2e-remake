@@ -448,6 +448,18 @@ describe('e2e init', () => {
     expect(output()).toContain('Next: npm install, then claude auth login, then npm run test:e2e');
   });
 
+  it('warns on Windows that a package-manager app command cannot start without a shell', async () => {
+    vi.spyOn(os, 'platform').mockReturnValue('win32');
+    await init(dir, { plan: true, skill: false, mcp: false, appCommand: ['pnpm', 'dev'] });
+    const plan = JSON.parse(output()) as { warnings: string[] };
+    expect(plan.warnings).toEqual([expect.stringContaining('pnpm is a .cmd shim it cannot start; start the dev server before e2e run')]);
+
+    stdoutSpy.mockClear();
+    vi.spyOn(os, 'platform').mockReturnValue('linux');
+    await init(dir, { plan: true, skill: false, mcp: false, appCommand: ['pnpm', 'dev'] });
+    expect((JSON.parse(output()) as { warnings: string[] }).warnings).toEqual([]);
+  });
+
   it('asks only the questions no flag answered', async () => {
     vi.mocked(clack.select).mockResolvedValue('web');
     vi.mocked(clack.confirm).mockResolvedValue(true);

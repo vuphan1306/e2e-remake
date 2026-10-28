@@ -8,7 +8,7 @@ icon: "terminal"
 
 <CodeGroup>
 ```bash npm
-npx e2e init [directory]
+npx @vuphan1306/e2e init [directory]
 npx e2e login [provider]
 npx e2e logout [provider]
 npx e2e models [provider]
@@ -25,7 +25,7 @@ npx e2e --version
 ```
 
 ```bash pnpm
-pnpm dlx e2e init [directory]
+pnpm dlx @vuphan1306/e2e init [directory]
 pnpm exec e2e login [provider]
 pnpm exec e2e logout [provider]
 pnpm exec e2e models [provider]
@@ -42,7 +42,7 @@ pnpm exec e2e --version
 ```
 
 ```bash bun
-bunx e2e init [directory]
+bunx @vuphan1306/e2e init [directory]
 bunx e2e login [provider]
 bunx e2e logout [provider]
 bunx e2e models [provider]
@@ -124,7 +124,7 @@ lockfile, then the invoking package manager, then npm.
 | `--gateway <id>` | `claude`, `vercel`, `openrouter`, `openai-compatible`, `chatgpt`, `copilot`, `opencode-console`, `grok`, `none` | asked | The model gateway for a new config, in place of the prompt |
 | `--endpoint <url>` | URL | asked | Base URL for `--gateway openai-compatible`; HTTPS, or HTTP on a loopback host |
 | `--app-url <url>` | URL | `http://localhost:3000` | The fallback `app.url` the config writes when `APP_URL` is unset |
-| `--app-command <command>` | string | none | Writes `app.command` with `reuseExisting: true`, so the runner starts the dev server, or uses the one already answering. Split on spaces into the executable and its arguments, never run through a shell |
+| `--app-command <command>` | string | none | Writes `app.command` with `reuseExisting: true`, so the runner starts the dev server, or uses the one already answering. Split on spaces into the executable and its arguments, never run through a shell. On Windows the runner cannot start a `.cmd` shim (`npm`, `pnpm`, `yarn`, `bun`), so `init` warns: start the dev server before `e2e run` there |
 | `--skill`, `--no-skill` | boolean | asked | Install the agent skill in every location, or leave it out (existing copies included) |
 | `--mcp`, `--no-mcp` | boolean | asked | Register the MCP server in every location, or leave it out |
 | `--plan` | boolean | `false` | Prints every change as JSON on stdout and writes nothing; implies `--yes`. See below |
@@ -142,15 +142,15 @@ A flag answers its own question; an interactive run still asks the rest.
 
 <CodeGroup>
 ```bash npm
-npx e2e init --yes
+npx @vuphan1306/e2e init --yes
 ```
 
 ```bash pnpm
-pnpm dlx e2e init --yes
+pnpm dlx @vuphan1306/e2e init --yes
 ```
 
 ```bash bun
-bunx e2e init --yes
+bunx @vuphan1306/e2e init --yes
 ```
 </CodeGroup>
 
@@ -180,7 +180,8 @@ without `--yes` or `--plan` exits 2 and names the flag.
 
 `--plan` is for a coding agent that shows each change to the project's owner
 before anything is written. It runs the same steps as `--yes`, prints one
-JSON object on stdout, and writes nothing; warnings go to stderr.
+JSON object on stdout, and writes nothing; errors go to stderr. The shape is
+`packages/e2e/schema/init-plan-v1.schema.json`, shipped in the package.
 
 ```json
 {
@@ -189,6 +190,7 @@ JSON object on stdout, and writes nothing; warnings go to stderr.
     { "path": "e2e.config.ts", "action": "create", "sha256": "…", "content": "…" }
   ],
   "skills": [{ "path": ".agents/skills/e2e", "action": "create", "files": 12 }],
+  "warnings": ["Exists, not touching: tests/example.e2e.ts"],
   "untouched": ["tests/example.e2e.ts"],
   "dependencies": [["e2e", "npm:@vuphan1306/e2e@^0.20.0"]],
   "scripts": [["test:e2e", "e2e run"]],
@@ -202,7 +204,9 @@ configs included, with the SHA-256 of their UTF-8 encoding. Write the
 approved entries yourself, or rerun with the same flags and without `--plan`
 to write them all; the contents are the same either way. `untouched` lists
 the existing config and example `init` leaves alone. Skill copies are listed
-by directory, not by file.
+by directory, not by file. `warnings` holds what an interactive run prints as
+warnings, among them a `package.json` whose `e2e` is not this fork's alias:
+`init` keeps an existing dependency, so fix that one by hand.
 
 ## e2e login
 
