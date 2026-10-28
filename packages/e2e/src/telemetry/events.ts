@@ -58,6 +58,7 @@ export interface SessionEnd {
  */
 export type InitResult =
   | 'scaffolded'
+  | 'planned'
   | 'already-initialized'
   | 'cancelled'
   | 'install-failed'

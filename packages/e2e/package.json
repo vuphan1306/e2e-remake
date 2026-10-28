@@ -26,13 +26,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tester-army/e2e.git",
+    "url": "git+https://github.com/vuphan1306/e2e-remake.git",
     "directory": "packages/e2e"
   },
   "bugs": {
-    "url": "https://github.com/tester-army/e2e/issues"
+    "url": "https://github.com/vuphan1306/e2e-remake/issues"
   },
-  "homepage": "https://github.com/tester-army/e2e#readme",
+  "homepage": "https://github.com/vuphan1306/e2e-remake#readme",
+  "publishName": "@vuphan1306/e2e",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public",
@@ -91,6 +92,8 @@
   "scripts": {
     "build": "node scripts/prepare-build.ts && tsc --project tsconfig.build.json && node scripts/write-sibling-versions.ts && node ../../scripts/stamp-dist.ts",
     "prepublishOnly": "node ../../scripts/check-dist.ts",
+    "pack:fork": "node scripts/release-fork.ts pack",
+    "publish:fork": "node scripts/release-fork.ts publish",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

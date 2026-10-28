@@ -26,6 +26,18 @@ export function dependencyRange(version: string | undefined): string {
   return version.includes('-') ? version : `^${version}`;
 }
 
+/**
+ * The spec init writes for the runner under the `e2e` key. The fork publishes
+ * under the scoped name its manifest's `publishName` holds, because the
+ * unscoped `e2e` on npm is upstream's; an npm alias installs it as `e2e`, so
+ * `import ... from 'e2e'` and the engines' `e2e` peer resolve to it unchanged.
+ * Without a `publishName` the range alone, as upstream writes it.
+ */
+export function runnerDependency(manifest: { readonly version?: string; readonly publishName?: string } | undefined): string {
+  const range = dependencyRange(manifest?.version);
+  return manifest?.publishName === undefined ? range : `npm:${manifest.publishName}@${range}`;
+}
+
 /** The range init writes for a sibling `@e2e-dev/*` package released alongside this runner. */
 export function siblingDependency(name: string): Readonly<Record<string, string>> {
   return { [name]: dependencyRange(SIBLING_VERSIONS?.[name]) };
