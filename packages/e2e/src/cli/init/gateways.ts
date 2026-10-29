@@ -114,6 +114,6 @@ export function getGatewayPreset(id: GatewayId): GatewayPreset {
 }
 
 /** A single-quoted TypeScript string literal. */
-function quote(value: string): string {
+export function quote(value: string): string {
   return `'${value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`;
 }

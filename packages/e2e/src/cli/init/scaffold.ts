@@ -1,6 +1,6 @@
-import { packageVersion } from '../../internal/package-version.ts';
-import { getEnginePreset, type EngineId } from './engines.ts';
-import { dependencyRange } from './versions.ts';
+import { readJson } from '../../internal/package-version.ts';
+import { getEnginePreset, type AppScaffold, type EngineId } from './engines.ts';
+import { runnerDependency } from './versions.ts';
 import { getGatewayPreset, type GatewayId } from './gateways.ts';
 
 /** The model choice `init` writes: which gateway, and for an OpenAI-compatible one, where. */
@@ -27,8 +27,8 @@ function agentConfig(model: ScaffoldModel): string {
 }
 
 /** Composes common setup, the selected engine, and optional AI support. */
-export function createScaffold(engineId: EngineId, model: ScaffoldModel | undefined) {
-  const engine = getEnginePreset(engineId);
+export function createScaffold(engineId: EngineId, model: ScaffoldModel | undefined, app: AppScaffold = {}) {
+  const engine = getEnginePreset(engineId, app);
   const gateway = model === undefined ? undefined : getGatewayPreset(model.gateway);
   const imports = [
     "import type { E2EConfig } from 'e2e';",
@@ -42,7 +42,7 @@ export function createScaffold(engineId: EngineId, model: ScaffoldModel | undefi
 
   return {
     dependencies: {
-      'e2e': dependencyRange(packageVersion(import.meta.url, '../../../package.json', '0.0.0')),
+      'e2e': runnerDependency(readJson(import.meta.url, '../../../package.json') as { version?: string; publishName?: string } | undefined),
       ...engine.dependencies,
       // zod is a peer of `ai` and every provider; npm and pnpm install peers, Yarn does not.
       ...(gateway === undefined ? {} : { ai: '^7.0.0', zod: '^4.1.8', ...gateway.dependencies }),

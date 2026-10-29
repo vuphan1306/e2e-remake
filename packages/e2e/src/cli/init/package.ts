@@ -38,10 +38,16 @@ export function describeManifestError(cause: unknown): string {
   return cause instanceof Error ? cause.message : String(cause);
 }
 
+/** The spec the first dependency section that lists `name` gives it, or undefined. */
+export function declaredDependency(manifest: PackageManifest, name: string): string | undefined {
+  return [manifest.dependencies, manifest.devDependencies, manifest.peerDependencies, manifest.optionalDependencies]
+    .map((block) => block?.[name])
+    .find((spec) => spec !== undefined);
+}
+
 /** True when any dependency section lists `name`, so existing versions and workspace links are kept. */
 function declaresDependency(manifest: PackageManifest, name: string): boolean {
-  return [manifest.dependencies, manifest.devDependencies, manifest.peerDependencies, manifest.optionalDependencies]
-    .some((block) => block?.[name] !== undefined);
+  return declaredDependency(manifest, name) !== undefined;
 }
 
 /** Adds only missing dependencies to devDependencies and returns what was added. */

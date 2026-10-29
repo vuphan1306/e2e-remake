@@ -91,12 +91,13 @@ afterEach(() => {
 describe('e2e init', () => {
   it('adds the runner, Playwright, and AI with --yes and does not install or prompt', async () => {
     expect((await init(dir, { yes: true })).exitCode).toBe(0);
-    // The runner pins itself the way it pins engines: a caret on a stable version, exact on a canary.
-    const runnerVersion = (JSON.parse(readFileSync(path.resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string }).version;
+    // The runner pins itself the way it pins engines (a caret on a stable version, exact on a canary),
+    // behind an npm alias to the fork's scoped publish name.
+    const runner = JSON.parse(readFileSync(path.resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string; publishName: string };
     expect(JSON.parse(read('package.json'))).toEqual({
       private: true,
       type: 'module',
-      devDependencies: { 'e2e': dependencyRange(runnerVersion), '@e2e-dev/web': '0.x', ai: '^7.0.0', zod: '^4.1.8' },
+      devDependencies: { 'e2e': `npm:${runner.publishName}@${dependencyRange(runner.version)}`, '@e2e-dev/web': '0.x', ai: '^7.0.0', zod: '^4.1.8' },
       scripts: { 'test:e2e': 'e2e run' },
     });
     expect(read('e2e.config.ts')).toContain('agents: {\n    default: {\n      model: ');
@@ -425,6 +426,96 @@ describe('e2e init', () => {
     expect(spawnSync).not.toHaveBeenCalled();
     expect(output()).toMatch(reason);
     expect(output()).toContain('fix it before running e2e init');
+  });
+
+  it('takes the engine, gateway, and app from flags without prompting', async () => {
+    const outcome = await init(dir, {
+      interactive: false,
+      yes: true,
+      engine: 'web',
+      gateway: 'claude',
+      appUrl: 'http://localhost:5173',
+      appCommand: ['npm', 'run', 'dev'],
+    });
+    expect(outcome).toMatchObject({ exitCode: 0, engine: 'web', gateway: 'claude' });
+    expect(clack.select).not.toHaveBeenCalled();
+    expect(read('e2e.config.ts')).toContain("import { claude } from 'e2e/oauth/claude';");
+    expect(read('e2e.config.ts')).toContain("model: claude('sonnet'),");
+    expect(read('e2e.config.ts')).toContain("url: process.env.APP_URL ?? 'http://localhost:5173',");
+    expect(read('e2e.config.ts')).toContain("command: { executable: 'npm', args: ['run', 'dev'], reuseExisting: true },");
+    expect(read('e2e.config.ts')).not.toContain('// command:');
+    // The config names its app, so the run needs no APP_URL; the sign-in comes first.
+    expect(output()).toContain('Next: npm install, then claude auth login, then npm run test:e2e');
+  });
+
+  it('warns on Windows that a package-manager app command cannot start without a shell', async () => {
+    vi.spyOn(os, 'platform').mockReturnValue('win32');
+    await init(dir, { plan: true, skill: false, mcp: false, appCommand: ['pnpm', 'dev'] });
+    const plan = JSON.parse(output()) as { warnings: string[] };
+    expect(plan.warnings).toEqual([expect.stringContaining('pnpm is a .cmd shim it cannot start; start the dev server before e2e run')]);
+
+    stdoutSpy.mockClear();
+    vi.spyOn(os, 'platform').mockReturnValue('linux');
+    await init(dir, { plan: true, skill: false, mcp: false, appCommand: ['pnpm', 'dev'] });
+    expect((JSON.parse(output()) as { warnings: string[] }).warnings).toEqual([]);
+  });
+
+  it('asks only the questions no flag answered', async () => {
+    vi.mocked(clack.select).mockResolvedValue('web');
+    vi.mocked(clack.confirm).mockResolvedValue(true);
+    expect((await init(dir, { gateway: 'none', skill: false, mcp: false })).exitCode).toBe(0);
+    expect(clack.select).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(clack.select).mock.calls[0]?.[0].message).toBe('Which engine?');
+    expect(clack.multiselect).not.toHaveBeenCalled();
+    expect(read('e2e.config.ts')).not.toContain('agents:');
+    expect(existsSync(path.join(dir, '.mcp.json'))).toBe(false);
+    expect(existsSync(path.join(dir, '.agents'))).toBe(false);
+  });
+
+  it('prints the plan as JSON with digests and writes nothing', async () => {
+    writeFileSync(path.join(dir, '.gitignore'), 'dist/');
+    const outcome = await init(dir, { interactive: false, plan: true, gateway: 'claude', skill: false, appCommand: ['pnpm', 'dev'] });
+    expect(outcome).toMatchObject({ exitCode: 0, result: 'planned', yes: true });
+    expect(readdirSync(dir)).toEqual(['.gitignore']);
+    expect(clack.intro).not.toHaveBeenCalled();
+    const plan = JSON.parse(output()) as {
+      version: number;
+      files: { path: string; action: string; sha256: string; content: string }[];
+      skills: unknown[];
+      untouched: string[];
+      dependencies: [string, string][];
+      next: string[];
+    };
+    expect(plan.version).toBe(1);
+    expect(plan.files.map((file) => [file.path, file.action])).toEqual([
+      ['package.json', 'create'],
+      ['e2e.config.ts', 'create'],
+      ['tests/example.e2e.ts', 'create'],
+      ['.mcp.json', 'create'],
+      ['.cursor/mcp.json', 'create'],
+      ['.gitignore', 'update'],
+    ]);
+    const ignore = plan.files.find((file) => file.path === '.gitignore')!;
+    expect(ignore.content.startsWith('dist/\nnode_modules/\n')).toBe(true);
+    expect(ignore.sha256).toMatch(/^[0-9a-f]{64}$/u);
+    expect(plan.skills).toEqual([]);
+    expect(plan.untouched).toEqual([]);
+    expect(plan.dependencies.map(([name]) => name)).toContain('e2e');
+    expect(plan.next).toEqual(['npm install', 'claude auth login', 'npm run test:e2e']);
+
+    // Applying writes exactly the planned contents.
+    stdoutSpy.mockClear();
+    expect((await init(dir, { yes: true, gateway: 'claude', skill: false, appCommand: ['pnpm', 'dev'] })).exitCode).toBe(0);
+    for (const file of plan.files) expect(read(file.path)).toBe(file.content);
+  });
+
+  it('plans around an existing config and leaves it untouched', async () => {
+    writeFileSync(path.join(dir, 'e2e.config.ts'), '// custom config\n');
+    await init(dir, { plan: true, skill: false, mcp: false });
+    const plan = JSON.parse(output()) as { files: { path: string }[]; untouched: string[] };
+    expect(plan.untouched).toEqual(['e2e.config.ts']);
+    expect(plan.files.map((file) => file.path)).not.toContain('e2e.config.ts');
+    expect(read('e2e.config.ts')).toBe('// custom config\n');
   });
 
   it('refuses to prompt without a terminal and names --yes', async () => {

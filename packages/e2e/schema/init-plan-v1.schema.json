@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://e2e.dev/schema/init-plan-v1.schema.json",
+  "title": "e2e init --plan, version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "files", "skills", "warnings", "untouched", "dependencies", "scripts", "install", "next"],
+  "properties": {
+    "version": { "const": 1 },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "action", "sha256", "content"],
+        "properties": {
+          "path": { "$ref": "#/$defs/relativePath" },
+          "action": { "enum": ["create", "update"] },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "content": { "type": "string" }
+        }
+      }
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "action"],
+        "properties": {
+          "path": { "$ref": "#/$defs/relativePath" },
+          "action": { "enum": ["create", "update", "link"] },
+          "target": { "type": "string", "minLength": 1 },
+          "files": { "type": "integer", "minimum": 1 }
+        },
+        "oneOf": [
+          { "properties": { "action": { "const": "link" } }, "required": ["target"], "not": { "required": ["files"] } },
+          { "properties": { "action": { "enum": ["create", "update"] } }, "required": ["files"], "not": { "required": ["target"] } }
+        ]
+      }
+    },
+    "warnings": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "untouched": { "type": "array", "items": { "$ref": "#/$defs/relativePath" } },
+    "dependencies": { "$ref": "#/$defs/pairs" },
+    "scripts": { "$ref": "#/$defs/pairs" },
+    "install": { "type": "string", "minLength": 1 },
+    "next": { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
+  },
+  "$defs": {
+    "relativePath": { "type": "string", "minLength": 1, "pattern": "^(?![/\\\\])(?![A-Za-z]:)(?!.*\\\\)" },
+    "pairs": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "prefixItems": [{ "type": "string", "minLength": 1 }, { "type": "string", "minLength": 1 }],
+        "minItems": 2,
+        "maxItems": 2
+      }
+    }
+  }
+}

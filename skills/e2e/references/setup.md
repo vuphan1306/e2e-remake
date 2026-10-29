@@ -31,29 +31,39 @@
 Fresh project:
 
 ```bash
-npx e2e init       # npm
-pnpm dlx e2e init  # pnpm
+npx @vuphan1306/e2e init       # npm
+pnpm dlx @vuphan1306/e2e init  # pnpm
 ```
 
-With `e2e` installed, run the installed version: `npx e2e init` or `pnpm exec
-e2e init`; `npx e2e init my-app` scaffolds into a new directory.
+This fork publishes as `@vuphan1306/e2e`; the unscoped `e2e` on npm is
+upstream's, without `e2e/oauth/claude`. With `e2e` installed, run the
+installed version: `npx e2e init` or `pnpm exec e2e init`; `npx e2e init
+my-app` scaffolds into a new directory (a Python or other non-Node project
+takes its e2e project in a sidecar folder: `npx e2e init e2e`).
 
 The wizard picks an engine and a model provider (None for tests without AI)
 and offers to install this skill, register the MCP server for your coding
 agent, and install dependencies. `--yes` picks Playwright and Vercel AI
 Gateway, installs the skill in `.agents/skills/` (`.claude/skills/e2e`
 symlinks to it), registers MCP in `.mcp.json` and `.cursor/mcp.json`, skips
-installing dependencies.
+installing dependencies. Flags answer single questions: `--engine`,
+`--gateway claude`, `--app-url`, `--app-command "npm run dev"` (the runner
+starts it, or reuses the server already answering), `--no-skill`, `--no-mcp`.
 
 Init adds dependencies and a `test:e2e` script to `package.json`, writes
 `e2e.config.ts` and `tests/example.e2e.ts`, updates `.gitignore`, leaves
 existing configs and tests alone. Re-run after upgrading to refresh skill and
 MCP entries.
 
+To show the changes to the project's owner first, run with `--plan`: one JSON
+object on stdout with each file's path, `create` or `update`, full content,
+and SHA-256, and nothing written. Write the approved files, or rerun without
+`--plan` to write them all.
+
 Without the wizard (`ai`, Vercel AI SDK v7, only for `agent.*` steps):
 
 ```bash
-npm install --save-dev e2e @e2e-dev/web ai@^7
+npm install --save-dev e2e@npm:@vuphan1306/e2e @e2e-dev/web ai@^7
 ```
 
 ## Subscriptions and API keys
@@ -392,6 +402,21 @@ export default {
 - `.gitignore` lists the `.e2e/` outputs (init adds them); drop the
   `.e2e/cache/` line to commit replays.
 - CI runs the whole suite, agent steps included, on PRs; see `running`.
+
+### Ready check
+
+Run these in order; each one's failure names the next fix:
+
+| Check | Command | Proves |
+| --- | --- | --- |
+| Model sign-in (Claude plan) | `claude auth status` | Agent steps have a model |
+| Config loads | `npx e2e list` | Runner installed, `e2e.config.ts` and the tests resolve |
+| Smoke test | `npx e2e run tests/example.e2e.ts --reporter json` | The app starts (or the running one is reused) and the first test passes |
+| Live app for the agent | the `e2e` MCP server's `open_session` | A coding agent can drive the app |
+
+Keep coding agents out of `.e2e/sessions/` (encrypted saved sign-ins) and
+`.e2e/cache/` (recorded actions): deny reads of both in the agent's
+settings.
 
 ### Existing MCP registration
 

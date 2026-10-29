@@ -1,6 +1,7 @@
 /** CLI scaffold presets. Engine packages are referenced as generated source, never imported. */
 
 import os from 'node:os';
+import { quote } from './gateways.ts';
 import { siblingDependency } from './versions.ts';
 
 export interface EnginePreset {
@@ -16,9 +17,23 @@ export interface EnginePreset {
   readonly needsAppUrl: boolean;
 }
 
+/** The app a URL-driven preset points at: `--app-url` and `--app-command`, split on whitespace, never shell-interpreted. */
+export interface AppScaffold {
+  readonly url?: string;
+  readonly command?: readonly string[];
+}
+
+const DEFAULT_APP_URL = 'http://localhost:3000';
+
 /** Builds prompt choices and scaffolds with defaults for the machine running init. */
-export function getEnginePresets() {
+export function getEnginePresets(app: AppScaffold = {}) {
   const ios = os.platform() === 'darwin';
+  const [executable, ...args] = app.command ?? [];
+  // A dev server the user already runs answers the ready probe, so the runner reuses it instead of starting a second one.
+  const command = executable === undefined
+    ? `      // Or let the runner start the dev server:
+      // command: { executable: 'npm', args: ['run', 'dev'] },`
+    : `      command: { executable: ${quote(executable)}, args: [${args.map(quote).join(', ')}], reuseExisting: true },`;
   return [
     {
       id: 'web',
@@ -29,9 +44,8 @@ export function getEnginePresets() {
       config: `  targets: [{
     engine: web(),
     app: {
-      url: process.env.APP_URL ?? 'http://localhost:3000',
-      // Or let the runner start the dev server:
-      // command: { executable: 'npm', args: ['run', 'dev'] },
+      url: process.env.APP_URL ?? ${quote(app.url ?? DEFAULT_APP_URL)},
+${command}
     },
   }],`,
       example: `import { test } from '@e2e-dev/web';
@@ -103,7 +117,7 @@ test('Settings opens', async ({ app, screen }) => {
       example: `import { test, expect } from 'e2e';
 
 test('app responds', async () => {
-  const response = await fetch(process.env.APP_URL ?? 'http://localhost:3000');
+  const response = await fetch(process.env.APP_URL ?? ${quote(app.url ?? DEFAULT_APP_URL)});
   expect(response.ok).toBe(true);
 });
 `,
@@ -116,8 +130,8 @@ export type EngineId = ReturnType<typeof getEnginePresets>[number]['id'];
 export const DEFAULT_ENGINE_ID = 'web' satisfies EngineId;
 
 /** Resolves a preset with the common shape used by scaffold generation. */
-export function getEnginePreset(id: EngineId): EnginePreset {
-  const preset = getEnginePresets().find((entry) => entry.id === id);
+export function getEnginePreset(id: EngineId, app: AppScaffold = {}): EnginePreset {
+  const preset = getEnginePresets(app).find((entry) => entry.id === id);
   if (preset === undefined) throw new Error(`unknown engine: ${id}`);
   return preset;
 }

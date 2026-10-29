@@ -24,7 +24,9 @@ import { cache, type CacheCommand } from './cache.ts';
 import { DOCS_URL } from './docs-url.ts';
 import { feedback, FEEDBACK_LIMITS, FEEDBACK_TYPES, type FeedbackReport } from './feedback.ts';
 import { guide } from './guide.ts';
-import { init } from './init.ts';
+import { init, validateEndpoint, type InitOptions } from './init.ts';
+import { getEnginePresets } from './init/engines.ts';
+import { GATEWAYS } from './init/gateways.ts';
 import { mcp } from './mcp.ts';
 import { SESSION_BOUNDS } from '../mcp/session.ts';
 import { runLogin, runLogout, runModels, SUBSCRIPTION_IDS, type LoginFlags } from '../oauth/cli.ts';
@@ -102,6 +104,33 @@ function parseShard(value: string): Shard {
     throw new InvalidArgumentError('must be index/total, such as 2/3, with the index from 1 through the total');
   }
   return { index, total };
+}
+
+/** `--endpoint` for `e2e init`: the rule the prompt applies, HTTPS or HTTP on a loopback host. */
+function parseEndpoint(value: string): string {
+  const problem = validateEndpoint(value);
+  if (problem !== undefined) throw new InvalidArgumentError(problem);
+  return value.trim();
+}
+
+/** `--app-url` for `e2e init`: an absolute http or https URL. */
+function parseAppUrl(value: string): string {
+  const trimmed = value.trim();
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    throw new InvalidArgumentError('must be an absolute URL, such as http://localhost:3000');
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') throw new InvalidArgumentError('must use http or https');
+  return trimmed;
+}
+
+/** `--app-command` for `e2e init`: an executable and its arguments, split on whitespace and never shell-interpreted. */
+function parseAppCommand(value: string): readonly string[] {
+  const words = value.trim().split(/\s+/u).filter((word) => word !== '');
+  if (words.length === 0) throw new InvalidArgumentError('must name the executable, such as "npm run dev"');
+  return words;
 }
 
 /** An integer inside a closed range, for the explore budgets. */
@@ -467,11 +496,32 @@ function createProgram(version: string, telemetry: Telemetry): Command {
     )
     .argument('[directory]', 'project directory, created when missing (default: the current directory)')
     .option('-y, --yes', 'skip the prompts: Playwright, AI on, no installation')
+    .addOption(new Option('--engine <id>', 'the engine for a new config, in place of the prompt').choices(getEnginePresets().map(({ id }) => id)))
+    .addOption(new Option('--gateway <id>', 'the model gateway for a new config, or none, in place of the prompt').choices([...GATEWAYS.map(({ id }) => id), 'none']))
+    .option('--endpoint <url>', 'base URL of the API for --gateway openai-compatible', parseEndpoint)
+    .option('--app-url <url>', 'the app URL the config points at (default: http://localhost:3000)', parseAppUrl)
+    .option('--app-command <command>', 'the dev server the runner starts, or reuses when it already answers, e.g. "npm run dev"; split on spaces, never run through a shell', parseAppCommand)
+    .option('--skill', 'install the agent skill in every location without asking')
+    .option('--no-skill', 'leave the agent skill out')
+    .option('--mcp', 'register the MCP server in every location without asking')
+    .option('--no-mcp', 'leave the MCP registration out')
+    .option('--plan', 'print every change as JSON (paths, actions, contents, sha256) and write nothing; implies --yes')
     .addHelpText(
       'after',
-      ['', examples(['e2e init', 'e2e init my-app', 'e2e init --yes']), '', docsLine('/reference/cli')].join('\n'),
+      [
+        '',
+        examples([
+          'e2e init',
+          'e2e init my-app',
+          'e2e init --yes',
+          'e2e init --yes --gateway claude --app-command "npm run dev"',
+          'e2e init --plan --engine web --gateway claude --no-skill',
+        ]),
+        '',
+        docsLine('/reference/cli'),
+      ].join('\n'),
     )
-    .action(async (directory: string | undefined, options: { yes?: boolean }) => {
+    .action(async (directory: string | undefined, options: Omit<InitOptions, 'directory' | 'interactive'>) => {
       const { exitCode, ...outcome } = await init(resolvePath(process.cwd(), directory ?? '.'), {
         ...options,
         ...(directory === undefined ? {} : { directory }),

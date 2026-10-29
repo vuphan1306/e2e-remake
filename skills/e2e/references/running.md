@@ -14,7 +14,7 @@
 npx e2e run [files...] [options]   # run tests
 npx e2e explore [goal] [options]   # explore toward a goal without a test file (topic explore)
 npx e2e list [files...] [options]  # print what run would select
-npx e2e init [directory] [--yes]   # scaffold a project, refresh the agent skill
+npx @vuphan1306/e2e init [directory] [--yes]   # scaffold a project, refresh the agent skill
 npx e2e guide [topic]              # print this skill; topics: setup, writing-tests, agent,
                                    # running, explore, debugging, mcp, bug-bash
 npx e2e cache ls|clear|stats       # inspect or empty the replay cache

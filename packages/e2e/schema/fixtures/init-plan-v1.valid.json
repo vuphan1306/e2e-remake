@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "files": [
+    {
+      "path": "tests/example.e2e.ts",
+      "action": "create",
+      "sha256": "93f08e5129290a5b8f4c6d3e2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b",
+      "content": "import { test } from '@e2e-dev/web';\n"
+    },
+    {
+      "path": ".gitignore",
+      "action": "update",
+      "sha256": "d6c9078998e1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b",
+      "content": "dist/\nnode_modules/\n"
+    }
+  ],
+  "skills": [
+    { "path": ".agents/skills/e2e", "action": "create", "files": 12 },
+    { "path": ".claude/skills/e2e", "action": "link", "target": "../../.agents/skills/e2e" }
+  ],
+  "warnings": ["Exists, not touching: e2e.config.ts"],
+  "untouched": ["e2e.config.ts"],
+  "dependencies": [["e2e", "npm:@vuphan1306/e2e@^0.20.0"], ["@e2e-dev/web", "^0.14.0"]],
+  "scripts": [["test:e2e", "e2e run"]],
+  "install": "npm install",
+  "next": ["npm install", "claude auth login", "npm run test:e2e"]
+}

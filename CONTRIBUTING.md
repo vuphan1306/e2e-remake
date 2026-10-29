@@ -150,6 +150,32 @@ tag. Never hand-edit a package `version` or
 
 ## Releases
 
+### This fork (e2e-remake)
+
+The fork publishes only the runner, as `@vuphan1306/e2e` (the manifest's
+`publishName`); the unscoped `e2e` on npm stays upstream's. Projects install
+it under the name `e2e` through an npm alias, `"e2e":
+"npm:@vuphan1306/e2e@^<version>"`, which `e2e init` writes, so imports from
+`e2e` and the engines' `e2e` peer resolve to it. Engines and integrations come
+from upstream's `@e2e-dev/*` releases; keep the runner's version on upstream's
+line so their peer ranges hold.
+
+The workspace manifest keeps the name `e2e` (the integration tests and the
+type tests import it by that name). `scripts/release-fork.ts` swaps in
+`publishName` for one pack or publish and restores the manifest afterwards:
+
+```sh
+pnpm --filter e2e run build
+pnpm --filter e2e run pack:fork      # artifacts/vuphan1306-e2e-<version>.tgz
+pnpm --filter e2e run publish:fork   # npm login first; add --tag canary for a canary
+```
+
+Sync with upstream by rebasing on `tester-army/e2e` `main`. Keep the fork's
+diff in few places: `src/oauth/claude.ts` and its CLI wiring, `src/cli/init/`,
+package metadata, CI, and these docs.
+
+### Upstream
+
 The runner publishes to npmjs as `e2e`; engines and reporters publish under
 the `@e2e-dev` scope. All are public packages: anyone can install them and read
 the release on GitHub. After a PR with a changeset lands on `main`, the release

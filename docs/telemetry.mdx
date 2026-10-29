@@ -106,9 +106,9 @@ hold only the properties below.
 
 | Property | Value |
 | --- | --- |
-| `result` | `scaffolded`, `already-initialized`, `cancelled`, `install-failed`, `not-interactive`, or `invalid-project` |
+| `result` | `scaffolded`, `planned` (`--plan` printed the changes and wrote nothing), `already-initialized`, `cancelled`, `install-failed`, `not-interactive`, or `invalid-project` |
 | `yes`, `existing_config` | Whether `--yes` was given, and whether a config already existed, so no engine or gateway was asked |
-| `engine`, `gateway` | The ids of the engine and the model gateway chosen for a new config (`web`, `mobile`, `none`; `vercel`, `openrouter`, `openai-compatible`, `chatgpt`, `copilot`, `grok`, `none`), `null` when not asked. Never the endpoint typed for an OpenAI-compatible gateway |
+| `engine`, `gateway` | The ids of the engine and the model gateway chosen for a new config (`web`, `mobile`, `none`; `claude`, `vercel`, `openrouter`, `openai-compatible`, `chatgpt`, `copilot`, `grok`, `none`), `null` when not asked. Never the endpoint typed for an OpenAI-compatible gateway |
 | `skill`, `mcp`, `install` | Whether the agent skill, the MCP registration, and the dependency install were chosen |
 
 </Accordion>

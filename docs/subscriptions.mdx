@@ -24,23 +24,27 @@ For a new project, run `e2e init` and select your plan
 ([quickstart](/quickstart)). For an existing project, install the packages,
 sign in, and set `agents: { default: agent }` in `e2e.config.ts`.
 
+`e2e/oauth/claude` ships only in this fork, `@vuphan1306/e2e`; npm's unscoped
+`e2e` is upstream's. Install the fork as `e2e` through an npm alias, as
+`e2e init` does, so imports and the engines' `e2e` peer resolve to it.
+
 <Tabs>
   <Tab title="Claude">
 <CodeGroup>
 ```bash npm
-npm install -D ai
+npm install -D e2e@npm:@vuphan1306/e2e ai
 claude auth login
 claude auth status
 ```
 
 ```bash pnpm
-pnpm add -D ai
+pnpm add -D e2e@npm:@vuphan1306/e2e ai
 claude auth login
 claude auth status
 ```
 
 ```bash bun
-bun add -d ai
+bun add -d e2e@npm:@vuphan1306/e2e ai
 claude auth login
 claude auth status
 ```

@@ -528,6 +528,13 @@ trees, on both platforms, without a device.
     enqueueing (auto-merge included) is the trust decision: review a fork's
     test, config, and engine changes before you enqueue it.
 
+- Fork release: the runner publishes as `@vuphan1306/e2e` (`publishName` in
+  `packages/e2e/package.json`) through `pnpm --filter e2e run pack:fork` /
+  `publish:fork` (`scripts/release-fork.ts`, which swaps the name in for one
+  pack); the workspace name stays `e2e`. `e2e init` writes the runner as the
+  alias `npm:@vuphan1306/e2e@^<version>` (`runnerDependency` in
+  `src/cli/init/versions.ts`); engines come from upstream's `@e2e-dev/*`.
+  See "This fork" in CONTRIBUTING.md.
 - CI in e2e-remake: `.github/workflows/ci.yml` is the only workflow. It runs
   lint, `pnpm typecheck`, the `e2e` unit tests, and the script tests on
   ubuntu-latest and windows-latest for pushes to main and pull requests.
