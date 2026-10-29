@@ -39,8 +39,9 @@ suites that consume the built packages the way a user would.
   `src/` (grep for them; zero hits is the invariant). The one exception is the
   `e2e init` scaffold presets in `src/cli/init/engines.ts`, which write the
   user's config and so name engine packages as text; the package build records
-  the sibling packages' versions in `dist/cli/init/sibling-versions.json` for the
-  ranges they write. Each preset owns its prompt label, dependencies, config,
+  the engine versions in `dist/cli/init/sibling-versions.json` for the ranges
+  they write (on this fork, `publishedEngines`; see "Fork release" under
+  Gotchas). Each preset owns its prompt label, dependencies, config,
   example, and run command; interactive choices derive from this list. These
   presets never import engine implementations.
   - `src/run/` runner core (scheduler, units, workers, retries, sessions;
@@ -535,7 +536,10 @@ trees, on both platforms, without a device.
   alias `npm:@vuphan1306/e2e@^<version>` (`runnerDependency` in
   `src/cli/init/versions.ts`); engines come from upstream's `@e2e-dev/*`,
   at the npm releases `publishedEngines` in the same manifest names
-  (`scripts/write-sibling-versions.ts`), never the workspace versions.
+  (`scripts/write-sibling-versions.ts`), never the workspace versions; the
+  build fails when one is missing. The canary flow below is upstream's: a
+  fork canary runner satisfies no npm engine's `>=x <1` peer, so the fork
+  publishes no canaries.
   See "This fork" in CONTRIBUTING.md.
 - CI in e2e-remake: `.github/workflows/ci.yml` is the only workflow. It runs
   lint, `pnpm typecheck`, the `e2e` unit tests, and the script tests on

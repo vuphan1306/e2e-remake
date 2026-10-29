@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { dependencyRange, runnerDependency } from '../../src/cli/init/versions.ts';
 
@@ -27,5 +29,18 @@ describe('dependencyRange', () => {
 
   it('accepts any 0.x when running from source, where nothing was recorded', () => {
     expect(dependencyRange(undefined)).toBe('0.x');
+  });
+});
+
+describe('the fork manifest', () => {
+  // The build fails without these too; this names the rule where a rebase onto upstream would drop them.
+  it('names a stable npm release of every engine init installs', () => {
+    const manifest = JSON.parse(readFileSync(path.resolve(import.meta.dirname, '../../package.json'), 'utf8')) as {
+      publishName?: string;
+      publishedEngines?: Record<string, string>;
+    };
+    expect(manifest.publishName).toBe('@vuphan1306/e2e');
+    expect(Object.keys(manifest.publishedEngines ?? {}).toSorted()).toEqual(['@e2e-dev/mobile', '@e2e-dev/web']);
+    for (const version of Object.values(manifest.publishedEngines ?? {})) expect(version).toMatch(/^\d+\.\d+\.\d+$/u);
   });
 });
