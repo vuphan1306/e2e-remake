@@ -30,10 +30,12 @@ const CMD_META = /([()\][%!^"`<>&|;, *?])/gu;
 const CMD_SHIM = /node_modules[\\/]\.bin[\\/][^\\/]+\.cmd$/iu;
 
 /**
- * The file a command name resolves to the way `cmd.exe` finds it: a name with
- * a directory part relative to `cwd`, a bare name on `PATH`, each tried as
- * given when it already has an extension in `PATHEXT`, then with each one.
- * Undefined when nothing matches, so `spawn` reports the miss itself.
+ * The absolute file a command name resolves to the way libuv's spawn finds
+ * it: a name with a directory part relative to `cwd`, a bare name in `cwd`
+ * and then on `PATH` (entries unquoted, a relative one taken from `cwd`, the
+ * child's directory, not the runner's), each tried as given when it already
+ * has an extension in `PATHEXT`, then with each one. Undefined when nothing
+ * matches, so `spawn` reports the miss itself.
  */
 function resolveWindowsExecutable(executable: string, cwd: string, env: Readonly<Record<string, string | undefined>>): string | undefined {
   const extensions = (env.PATHEXT ?? DEFAULT_PATHEXT).split(';').filter((extension) => extension !== '');
@@ -41,7 +43,8 @@ function resolveWindowsExecutable(executable: string, cwd: string, env: Readonly
   const candidates = (base: string): string[] => [...(hasExtension ? [base] : []), ...extensions.map((extension) => `${base}${extension}`)];
   const directories = /[\\/]/u.test(executable)
     ? [path.win32.resolve(cwd, path.win32.dirname(executable))]
-    : (env.PATH ?? '').split(';').filter((entry) => entry !== '');
+    : [cwd, ...(env.PATH ?? '').split(';').map((entry) => entry.replace(/^"(.*)"$/u, '$1')).filter((entry) => entry !== '')]
+        .map((entry) => path.win32.resolve(cwd, entry));
   const name = /[\\/]/u.test(executable) ? path.win32.basename(executable) : executable;
   for (const directory of directories) {
     for (const candidate of candidates(path.win32.join(directory, name))) {
@@ -66,7 +69,9 @@ function escapeArgument(value: string, doubleEscape: boolean): string {
 /**
  * The spawn for `executable` and `args` on Windows: unchanged unless the
  * command resolves to a `.cmd` or `.bat` file, which runs through
- * `COMSPEC` (cmd.exe) with one escaped command line.
+ * `COMSPEC` (cmd.exe) with one escaped command line. cmd ends a command line
+ * at a line break and no escape survives that, so an argument holding one
+ * throws instead of reaching the batch file cut short, its successors lost.
  */
 export function planWindowsSpawn(
   executable: string,
@@ -76,6 +81,10 @@ export function planWindowsSpawn(
 ): SpawnPlan {
   const resolved = resolveWindowsExecutable(executable, cwd, env);
   if (resolved === undefined || !BATCH.test(resolved)) return { file: executable, args, windowsVerbatimArguments: false };
+  const broken = args.find((arg) => /[\r\n]/u.test(arg));
+  if (broken !== undefined) {
+    throw new Error(`${path.win32.basename(resolved)} is a batch file, which cmd.exe cannot pass a line break to; the argument ${JSON.stringify(broken)} holds one`);
+  }
   const doubleEscape = CMD_SHIM.test(resolved);
   const line = [resolved.replace(CMD_META, '^$1'), ...args.map((arg) => escapeArgument(arg, doubleEscape))].join(' ');
   return { file: env.COMSPEC ?? 'cmd.exe', args: ['/d', '/s', '/c', `"${line}"`], windowsVerbatimArguments: true };

@@ -124,7 +124,7 @@ lockfile, then the invoking package manager, then npm.
 | `--gateway <id>` | `claude`, `vercel`, `openrouter`, `openai-compatible`, `chatgpt`, `copilot`, `opencode-console`, `grok`, `none` | asked | The model gateway for a new config, in place of the prompt |
 | `--endpoint <url>` | URL | asked | Base URL for `--gateway openai-compatible`; HTTPS, or HTTP on a loopback host |
 | `--app-url <url>` | URL | `http://localhost:3000` | The fallback `app.url` the config writes when `APP_URL` is unset |
-| `--app-command <command>` | string | none | Writes `app.command` with `reuseExisting: true`, so the runner starts the dev server, or uses the one already answering. Split on spaces into the executable and its arguments, never run through a shell. |
+| `--app-command <command>` | string | none | Writes `app.command` with `reuseExisting: true`, so the runner starts the dev server, or uses the one already answering. Split on spaces into the executable and its arguments, which no shell interprets. |
 | `--skill`, `--no-skill` | boolean | asked | Install the agent skill in every location, or leave it out (existing copies included) |
 | `--mcp`, `--no-mcp` | boolean | asked | Register the MCP server in every location, or leave it out |
 | `--plan` | boolean | `false` | Prints every change as JSON on stdout and writes nothing; implies `--yes`. See below |

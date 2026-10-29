@@ -204,17 +204,22 @@ export class ManagedProcess {
     }
     Object.assign(env, this.command.env ?? {});
 
+    const cwd = path.resolve(this.projectRoot, this.command.cwd ?? '.');
+    const args = this.command.args ?? [];
+    // A .cmd shim (npm, pnpm, node_modules/.bin) runs through cmd.exe with escaped arguments; anything else spawns as is.
+    let plan: ReturnType<typeof planWindowsSpawn>;
+    try {
+      plan = process.platform === 'win32'
+        ? planWindowsSpawn(this.command.executable, args, cwd, env)
+        : { file: this.command.executable, args, windowsVerbatimArguments: false };
+    } catch (cause) {
+      throw new InfrastructureError('APP_UNREACHABLE', `${this.label} failed to start: ${cause instanceof Error ? cause.message : String(cause)}`, { cause });
+    }
     const logFd = this.openLog();
     // The log appends across commands and runs; a failure quotes what landed
     // past this offset. An earlier service still running on the same file
     // appends there too, which the quote's header admits.
     const logOffset = logFd === undefined ? undefined : fs.fstatSync(logFd).size;
-    const cwd = path.resolve(this.projectRoot, this.command.cwd ?? '.');
-    const args = this.command.args ?? [];
-    // A .cmd shim (npm, pnpm, node_modules/.bin) runs through cmd.exe with escaped arguments; anything else spawns as is.
-    const plan = process.platform === 'win32'
-      ? planWindowsSpawn(this.command.executable, args, cwd, env)
-      : { file: this.command.executable, args, windowsVerbatimArguments: false };
     let child: ChildProcess;
     try {
       child = spawn(plan.file, [...plan.args], {

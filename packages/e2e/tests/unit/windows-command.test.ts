@@ -72,6 +72,27 @@ describe.skipIf(ONLY_WINDOWS)('Windows app commands', () => {
     expect(planWindowsSpawn('missing', ['x'], dir, env)).toEqual({ file: 'missing', args: ['x'], windowsVerbatimArguments: false });
   });
 
+  it("finds a shim on a relative or quoted PATH entry from the command cwd, not the runner's", () => {
+    writeShim('apps/web/tools/serve.cmd');
+    writeShim('quoted dir/serve2.cmd');
+    const cwd = path.join(dir, 'apps', 'web');
+    const env = { PATH: `tools;"${path.join(dir, 'quoted dir')}"` };
+    expect(planWindowsSpawn('serve', [], cwd, env).args.at(-1)!.toLowerCase()).toContain(path.join(cwd, 'tools', 'serve.cmd').toLowerCase());
+    expect(planWindowsSpawn('serve2', [], cwd, env).args.at(-1)!.toLowerCase()).toContain('serve2.cmd');
+  });
+
+  it('refuses a line break in an argument to a batch file instead of letting cmd cut it short', async () => {
+    writeShim('bin/serve.cmd');
+    const env = { PATH: path.join(dir, 'bin') };
+    // PATHEXT spells the extension; Windows matches it whatever the file's case.
+    expect(() => planWindowsSpawn('serve', ['ok', 'a\nb', 'lost'], dir, env)).toThrow(
+      /^serve\.cmd is a batch file, which cmd\.exe cannot pass a line break to; the argument "a\\nb" holds one$/iu,
+    );
+    const app = new ManagedProcess('app.command', { executable: 'serve', args: ['line\r\nnext'], env }, dir, { readyUrl: 'http://127.0.0.1:9/' });
+    await expect(app.start()).rejects.toMatchObject({ code: 'APP_UNREACHABLE', message: expect.stringMatching(/^app\.command failed to start: serve\.cmd is a batch file/iu) });
+    expect(app.spawned).toBe(false);
+  });
+
   it('spawns an .exe as it is and a batch file through cmd.exe', () => {
     writeShim('bin/serve.cmd');
     const env = { PATH: `${path.join(dir, 'bin')};${path.dirname(process.execPath)}`, COMSPEC: 'C:\\Windows\\System32\\cmd.exe' };
