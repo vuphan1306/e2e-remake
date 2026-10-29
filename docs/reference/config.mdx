@@ -389,6 +389,13 @@ that already answers is `APP_ALREADY_RUNNING`. `reuseExisting` on an app
 whose `app.url` asks for port 0 is `INVALID_CONFIG`: a process already
 running cannot serve the port the run assigns.
 
+On Windows, an `executable` that resolves through `PATH` and `PATHEXT` to a
+`.cmd` or `.bat` file (`npm`, `pnpm`, `yarn`, a `node_modules/.bin` entry)
+runs through `cmd.exe` with each `args` entry escaped, so the batch file
+receives exactly the listed strings and cmd interprets none of them. Stopping
+the command ends its whole process tree (`taskkill /T`), so a dev server
+started by `npm run dev` does not outlive the run.
+
 The child inherits only `PATH`, `HOME`, the temp-directory variables, and
 `command.env`, so pass what the app needs explicitly. Every `args` entry and
 `env` value is a string; anything else, a number or a `secrets.get()` handle

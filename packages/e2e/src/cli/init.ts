@@ -133,9 +133,6 @@ const GITIGNORE_ENTRIES = [
   '.e2e/videos/',
 ];
 
-/** Package-manager commands that Windows installs as `.cmd` shims, which `spawn` without a shell cannot start. */
-const WINDOWS_SHIMS = new Set(['npm', 'npx', 'pnpm', 'yarn', 'bun', 'bunx']);
-
 const RUN_SCRIPT = 'test:e2e';
 const SCRIPTS = { [RUN_SCRIPT]: 'e2e run' };
 
@@ -305,12 +302,6 @@ export async function init(cwd: string, options: InitOptions = {}): Promise<Init
   const dependencies = addDependencies(pkg.manifest, scaffold.dependencies);
   const staleRunner = upstreamRunner(declaredDependency(pkg.manifest, 'e2e'), scaffold.dependencies.e2e);
   if (staleRunner !== undefined) ui.log.warn(staleRunner);
-  const shim = options.appCommand?.[0];
-  if (shim !== undefined && os.platform() === 'win32' && WINDOWS_SHIMS.has(shim)) {
-    ui.log.warn(
-      `On Windows the runner starts app.command without a shell, and ${shim} is a .cmd shim it cannot start; start the dev server before e2e run, and reuseExisting uses it`,
-    );
-  }
   const { manifest, additions: scripts } = addScripts(dependencies.manifest, SCRIPTS);
   if (dependencies.additions.length > 0) {
     ui.log.info(`Add dev dependencies: ${dependencies.additions.map(([name, version]) => `${name}@${version}`).join(', ')}`);
