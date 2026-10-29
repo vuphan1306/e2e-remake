@@ -158,7 +158,16 @@ it under the name `e2e` through an npm alias, `"e2e":
 "npm:@vuphan1306/e2e@^<version>"`, which `e2e init` writes, so imports from
 `e2e` and the engines' `e2e` peer resolve to it. Engines and integrations come
 from upstream's `@e2e-dev/*` releases; keep the runner's version on upstream's
-line so their peer ranges hold.
+line so their peer ranges hold. `publishedEngines` in the same manifest names
+the engine releases on npm that `e2e init` writes (as caret ranges). The
+workspace engine versions do not count: a pending changeset can bump them to a
+release npm never had; the build fails when an engine is missing from it.
+Before a publish, check the newest engines on npm (`npm view @e2e-dev/web
+version peerDependencies`), update `publishedEngines`, build, and check them
+by hand, since no script installs npm's engines: in an empty directory run
+the built CLI's `init --yes --app-url <a live site>`, point `e2e` at the
+`pack:fork` tarball, `npm install`, and `npx e2e run`. The fork publishes no
+canaries: a prerelease runner satisfies no npm engine's `>=x <1` peer range.
 
 The workspace manifest keeps the name `e2e` (the integration tests and the
 type tests import it by that name). `scripts/release-fork.ts` swaps in
@@ -167,7 +176,7 @@ type tests import it by that name). `scripts/release-fork.ts` swaps in
 ```sh
 pnpm --filter e2e run build
 pnpm --filter e2e run pack:fork      # artifacts/vuphan1306-e2e-<version>.tgz
-pnpm --filter e2e run publish:fork   # npm login first; add --tag canary for a canary
+pnpm --filter e2e run publish:fork   # npm login first; add --otp=<code>, then approve the staged version on npmjs.com
 ```
 
 Sync with upstream by rebasing on `tester-army/e2e` `main`. Keep the fork's
