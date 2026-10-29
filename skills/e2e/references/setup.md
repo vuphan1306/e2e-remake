@@ -277,8 +277,11 @@ app: {
 - A `url` answering before the spawn is `APP_ALREADY_RUNNING`;
   `command.reuseExisting: true` attaches to a running dev server (CI ignores
   it).
-- `executable` resolves on `PATH`, never through a shell; name the server
-  itself, not a wrapper script.
+- `executable` resolves on `PATH` and no shell interprets `args`: write
+  `{ executable: 'npm', args: ['run', 'dev'] }`, never one string. On Windows
+  a `.cmd` shim (`npm`, `pnpm`, `node_modules/.bin`) runs through cmd.exe with
+  each argument escaped; an argument holding a line break is
+  `APP_UNREACHABLE` there, since cmd cannot pass one.
 - `url: 'http://127.0.0.1:0'` (or `[::1]:0`, never `localhost:0`) takes a
   free port; the command receives it as
   `{port}` in `args` or `env` (`args: ['dev', '--port', '{port}']`), which

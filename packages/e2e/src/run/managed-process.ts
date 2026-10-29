@@ -1,6 +1,6 @@
 /** Spawned-process management for the app commands targets declare. */
 
-import { spawn, type ChildProcess } from 'node:child_process';
+import { spawn, spawnSync, type ChildProcess } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { stripVTControlCharacters } from 'node:util';
@@ -9,6 +9,7 @@ import { InfrastructureError } from '../internal/errors.ts';
 import { createRedactor } from '../internal/redact.ts';
 import { sleep } from '../internal/time.ts';
 import type { CommandConfig } from '../types.ts';
+import { planWindowsSpawn } from './windows-command.ts';
 
 const INHERITED_ENV = ['PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'SystemRoot', 'COMSPEC'] as const;
 
@@ -37,15 +38,23 @@ const REDACTED_ENV_MIN_LENGTH = 4;
 const live = new Set<ChildProcess>();
 
 /**
- * Sends `signal` to the whole process group behind `child` (the child alone
- * on Windows, which has no process groups); a group already gone is fine.
+ * Sends `signal` to the whole process group behind `child`; a group already
+ * gone is fine. Windows has no process groups and no graceful SIGTERM (Node
+ * terminates the process either way), so there the whole tree goes with
+ * `taskkill /T /F`: a dev server behind `cmd.exe` and `npm` is a grandchild,
+ * and killing the leader alone left it holding the port.
  */
 function signalProcessGroup(child: ChildProcess, signal: NodeJS.Signals): void {
   const pid = child.pid;
   if (pid === undefined) return;
+  if (process.platform === 'win32') {
+    // Once the leader has exited Windows may hand its pid to an unrelated process; taskkill must not reach it.
+    if (child.exitCode !== null || child.signalCode !== null) return;
+    spawnSync('taskkill', ['/pid', String(pid), '/T', '/F'], { stdio: 'ignore', windowsHide: true });
+    return;
+  }
   try {
-    if (process.platform !== 'win32') process.kill(-pid, signal);
-    else child.kill(signal);
+    process.kill(-pid, signal);
   } catch {
     // process already gone
   }
@@ -195,6 +204,17 @@ export class ManagedProcess {
     }
     Object.assign(env, this.command.env ?? {});
 
+    const cwd = path.resolve(this.projectRoot, this.command.cwd ?? '.');
+    const args = this.command.args ?? [];
+    // A .cmd shim (npm, pnpm, node_modules/.bin) runs through cmd.exe with escaped arguments; anything else spawns as is.
+    let plan: ReturnType<typeof planWindowsSpawn>;
+    try {
+      plan = process.platform === 'win32'
+        ? planWindowsSpawn(this.command.executable, args, cwd, env)
+        : { file: this.command.executable, args, windowsVerbatimArguments: false };
+    } catch (cause) {
+      throw new InfrastructureError('APP_UNREACHABLE', `${this.label} failed to start: ${cause instanceof Error ? cause.message : String(cause)}`, { cause });
+    }
     const logFd = this.openLog();
     // The log appends across commands and runs; a failure quotes what landed
     // past this offset. An earlier service still running on the same file
@@ -202,10 +222,12 @@ export class ManagedProcess {
     const logOffset = logFd === undefined ? undefined : fs.fstatSync(logFd).size;
     let child: ChildProcess;
     try {
-      child = spawn(this.command.executable, [...(this.command.args ?? [])], {
-        cwd: path.resolve(this.projectRoot, this.command.cwd ?? '.'),
+      child = spawn(plan.file, [...plan.args], {
+        cwd,
         env,
         detached: process.platform !== 'win32',
+        windowsHide: true,
+        windowsVerbatimArguments: plan.windowsVerbatimArguments,
         stdio: logFd === undefined ? 'ignore' : ['ignore', logFd, logFd],
       });
     } finally {

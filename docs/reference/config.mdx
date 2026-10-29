@@ -356,7 +356,7 @@ with the port. Tests read the allocated URL from
 
 ```ts
 export interface CommandConfig {
-  /** Resolved with `PATH`; never shell-interpreted. */
+  /** Resolved with `PATH`; its `args` are never shell-interpreted (a Windows `.cmd` or `.bat` file runs through cmd.exe with each one escaped). */
   executable: string;
   /** Passed verbatim; `{port}` expands to the app's port. */
   args?: readonly string[];
@@ -388,6 +388,15 @@ replaced by `<secret:NAME>` markers. Without `reuseExisting`, a `readyUrl`
 that already answers is `APP_ALREADY_RUNNING`. `reuseExisting` on an app
 whose `app.url` asks for port 0 is `INVALID_CONFIG`: a process already
 running cannot serve the port the run assigns.
+
+On Windows, an `executable` that resolves through `PATH` and `PATHEXT` to a
+`.cmd` or `.bat` file (`npm`, `pnpm`, `yarn`, a `node_modules/.bin` entry)
+runs through `cmd.exe` with each `args` entry escaped, so the batch file
+receives exactly the listed strings and cmd interprets none of them. cmd
+cannot pass a line break, so an argument holding one fails to start with
+`APP_UNREACHABLE` instead of reaching the batch file cut short. Stopping
+the command ends its whole process tree (`taskkill /T`), so a dev server
+started by `npm run dev` does not outlive the run.
 
 The child inherits only `PATH`, `HOME`, the temp-directory variables, and
 `command.env`, so pass what the app needs explicitly. Every `args` entry and

@@ -1013,7 +1013,7 @@ export interface Expect extends ExpectCall {
 }
 
 export interface CommandConfig {
-  /** Resolved with `PATH`; never shell-interpreted. */
+  /** Resolved with `PATH`; its `args` are never shell-interpreted (a Windows `.cmd` or `.bat` file runs through cmd.exe with each one escaped). */
   executable: string;
   /** Passed verbatim; `{port}` expands to the app's port. */
   args?: readonly string[];
