@@ -158,7 +158,12 @@ it under the name `e2e` through an npm alias, `"e2e":
 "npm:@vuphan1306/e2e@^<version>"`, which `e2e init` writes, so imports from
 `e2e` and the engines' `e2e` peer resolve to it. Engines and integrations come
 from upstream's `@e2e-dev/*` releases; keep the runner's version on upstream's
-line so their peer ranges hold.
+line so their peer ranges hold. `publishedEngines` in the same manifest names
+the engine releases on npm that `e2e init` writes (as caret ranges). The
+workspace engine versions do not count: a pending changeset can bump them to a
+release npm never had. Before a publish, check the newest engines on npm
+(`npm view @e2e-dev/web version peerDependencies`), run the smoke test
+against them, and update `publishedEngines`.
 
 The workspace manifest keeps the name `e2e` (the integration tests and the
 type tests import it by that name). `scripts/release-fork.ts` swaps in

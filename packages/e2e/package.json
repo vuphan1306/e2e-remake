@@ -34,6 +34,10 @@
   },
   "homepage": "https://github.com/vuphan1306/e2e-remake#readme",
   "publishName": "@vuphan1306/e2e",
+  "publishedEngines": {
+    "@e2e-dev/web": "0.15.3",
+    "@e2e-dev/mobile": "0.12.4"
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public",

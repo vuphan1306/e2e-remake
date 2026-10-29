@@ -533,7 +533,9 @@ trees, on both platforms, without a device.
   `publish:fork` (`scripts/release-fork.ts`, which swaps the name in for one
   pack); the workspace name stays `e2e`. `e2e init` writes the runner as the
   alias `npm:@vuphan1306/e2e@^<version>` (`runnerDependency` in
-  `src/cli/init/versions.ts`); engines come from upstream's `@e2e-dev/*`.
+  `src/cli/init/versions.ts`); engines come from upstream's `@e2e-dev/*`,
+  at the npm releases `publishedEngines` in the same manifest names
+  (`scripts/write-sibling-versions.ts`), never the workspace versions.
   See "This fork" in CONTRIBUTING.md.
 - CI in e2e-remake: `.github/workflows/ci.yml` is the only workflow. It runs
   lint, `pnpm typecheck`, the `e2e` unit tests, and the script tests on
